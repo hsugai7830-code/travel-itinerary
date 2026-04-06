@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>旅のしおり</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sand: #f5f0e8;
+    --warm-white: #fdfaf5;
+    --ink: #2c2416;
+    --ink-light: #5a4f3c;
+    --accent: #c17f3e;
+    --accent-light: #e8c99a;
+    --green: #4a7c59;
+    --red: #b85c4a;
+    --blue: #3a6080;
+    --shadow: rgba(44,36,22,0.12);
+    --border: rgba(44,36,22,0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--sand);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    background: var(--ink);
+    color: var(--accent-light);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 12px var(--shadow);
+  }
+
+  .header-title {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 22px;
+    letter-spacing: 0.02em;
+  }
+
+  .header-trip {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 13px;
+    font-weight: 300;
+    color: rgba(232,201,154,0.7);
+    margin-top: 2px;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+  }
+  .btn-primary:hover { background: #a86c2e; transform: translateY(-1px); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--accent-light);
+    border: 1px solid rgba(232,201,154,0.3);
+  }
+  .btn-ghost:hover { background: rgba(232,201,154,0.1); }
+
+  /* ===== LAYOUT ===== */
+  .app {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    height: calc(100vh - 61px);
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    background: var(--warm-white);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--warm-white);
+  }
+
+  .tab {
+    flex: 1;
+    padding: 12px 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-light);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .tab .tab-icon { font-size: 16px; }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab:hover:not(.active) { background: var(--sand); }
+
+  .panel { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+  .panel.active { display: flex; }
+
+  .panel-header {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .panel-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+  }
+
+  .panel-body::-webkit-scrollbar { width: 4px; }
+  .panel-body::-webkit-scrollbar-track { background: transparent; }
+  .panel-body::-webkit-scrollbar-thumb { background: var(--accent-light); border-radius: 2px; }
+
+  /* ===== SEARCH ===== */
+  .search-wrapper {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 10px 16px 10px 38px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--sand);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-input:focus { border-color: var(--accent); background: white; }
+
+  .search-icon {
+    position: absolute;
+    left: 32px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-light);
+    font-size: 15px;
+    pointer-events: none;
+  }
+
+  .search-results {
+    position: absolute;
+    top: 100%;
+    left: 20px;
+    right: 20px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px var(--shadow);
+    z-index: 100;
+    max-height: 240px;
+    overflow-y: auto;
+  }
+
+  .search-result-item {
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .search-result-item:last-child { border-bottom: none; }
+  .search-result-item:hover { background: var(--sand); }
+
+  .result-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .result-addr {
+    font-size: 11px;
+    color: var(--ink-light);
+    margin-top: 2px;
+  }
+
+  /* ===== SPOT CARDS ===== */
+  .spot-card {
+    background: white;
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .spot-card:hover { box-shadow: 0 4px 16px var(--shadow); transform: translateY(-1px); }
+  .spot-card.selected { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(193,127,62,0.2); }
+
+  .spot-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .spot-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .spot-icon.cat-food { background: #fff3e0; }
+  .spot-icon.cat-sight { background: #e8f5e9; }
+  .spot-icon.cat-hotel { background: #e3f2fd; }
+  .spot-icon.cat-shop { background: #fce4ec; }
+  .spot-icon.cat-other { background: #f3e5f5; }
+
+  .spot-info { flex: 1; min-width: 0; }
+
+  .spot-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .spot-addr {
+    font-size: 11px;
+    color: var(--ink-light);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .spot-actions {
+    display: flex;
+    gap: 4px;
+    margin-top: 10px;
+  }
+
+  .spot-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+  }
+
+  .spot-tag.wishlist { background: #fff3e0; color: #e65100; border-color: #ffcc80; }
+  .spot-tag.scheduled { background: #e8f5e9; color: #1b5e20; border-color: #a5d6a7; }
+
+  .spot-delete {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px;
+    transition: color 0.15s;
+  }
+  .spot-delete:hover { color: var(--red); }
+
+  .spot-memo {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--ink-light);
+    background: var(--sand);
+    border-radius: 6px;
+    padding: 6px 10px;
+    line-height: 1.5;
+  }
+
+  .spot-category-select {
+    font-size: 11px;
+    padding: 2px 6px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--sand);
+    color: var(--ink);
+    cursor: pointer;
+    outline: none;
+  }
+
+  /* ===== SCHEDULE ===== */
+  .day-group {
+    margin-bottom: 20px;
+  }
+
+  .day-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .day-label {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    background: rgba(193,127,62,0.1);
+    padding: 4px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .day-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .schedule-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+    background: white;
+    border-radius: 8px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .schedule-item:hover { box-shadow: 0 2px 8px var(--shadow); }
+
+  .schedule-time {
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 500;
+    white-space: nowrap;
+    padding-top: 2px;
+    min-width: 50px;
+  }
+
+  .schedule-content { flex: 1; }
+
+  .schedule-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .schedule-note {
+    font-size: 11px;
+    color: var(--ink-light);
+    margin-top: 2px;
+  }
+
+  .time-input {
+    font-size: 11px;
+    padding: 2px 4px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--sand);
+    color: var(--accent);
+    width: 70px;
+    font-family: 'Noto Sans JP', sans-serif;
+    outline: none;
+  }
+
+  .schedule-delete {
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 2px;
+    transition: color 0.15s;
+    align-self: flex-start;
+  }
+  .schedule-delete:hover { color: var(--red); }
+
+  /* ===== BOOKING PANEL ===== */
+  .booking-card {
+    background: white;
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+  }
+
+  .booking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .booking-type {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .booking-type.hotel { background: #e3f2fd; color: #1565c0; }
+  .booking-type.restaurant { background: #fff3e0; color: #e65100; }
+  .booking-type.transport { background: #e8f5e9; color: #1b5e20; }
+  .booking-type.other { background: #f3e5f5; color: #6a1b9a; }
+
+  .booking-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .booking-detail {
+    font-size: 12px;
+    color: var(--ink-light);
+    margin-bottom: 3px;
+    display: flex;
+    gap: 6px;
+  }
+
+  .booking-detail span:first-child { color: var(--ink); font-weight: 500; }
+
+  .booking-delete {
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 14px;
+    transition: color 0.15s;
+  }
+  .booking-delete:hover { color: var(--red); }
+
+  /* ===== ADD BOOKING FORM ===== */
+  .add-form {
+    background: var(--sand);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 16px;
+    border: 1px dashed var(--accent-light);
+  }
+
+  .form-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  .form-input {
+    flex: 1;
+    min-width: 120px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: white;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-input:focus { border-color: var(--accent); }
+
+  .form-select {
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: white;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    color: var(--ink);
+    cursor: pointer;
+    outline: none;
+  }
+
+  .form-label {
+    font-size: 11px;
+    color: var(--ink-light);
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+
+  .form-field { display: flex; flex-direction: column; flex: 1; min-width: 120px; }
+
+  /* ===== MAP ===== */
+  #map {
+    width: 100%;
+    height: 100%;
+  }
+
+  .map-container {
+    position: relative;
+    flex: 1;
+  }
+
+  .map-legend {
+    position: absolute;
+    bottom: 24px;
+    left: 16px;
+    background: white;
+    border-radius: 8px;
+    padding: 10px 14px;
+    box-shadow: 0 2px 12px var(--shadow);
+    font-size: 11px;
+    color: var(--ink-light);
+    z-index: 10;
+    border: 1px solid var(--border);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  .legend-item:last-child { margin-bottom: 0; }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ===== MEMO ===== */
+  .memo-textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--sand);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    color: var(--ink);
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.2s;
+    margin-top: 6px;
+  }
+  .memo-textarea:focus { border-color: var(--accent); background: white; }
+
+  /* ===== EMPTY STATE ===== */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--ink-light);
+  }
+
+  .empty-icon { font-size: 40px; margin-bottom: 10px; }
+  .empty-text { font-size: 13px; line-height: 1.6; }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(44,36,22,0.5);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--warm-white);
+    border-radius: 12px;
+    padding: 24px;
+    width: 90%;
+    max-width: 480px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+  }
+
+  .modal-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--ink);
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 16px;
+  }
+
+  /* ===== TRIP CONFIG ===== */
+  .trip-config {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .trip-input {
+    padding: 6px 10px;
+    border: 1px solid rgba(232,201,154,0.3);
+    border-radius: 6px;
+    background: rgba(255,255,255,0.1);
+    color: var(--accent-light);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    outline: none;
+    width: 120px;
+  }
+
+  .trip-input::placeholder { color: rgba(232,201,154,0.4); }
+
+  /* ===== INFO WINDOW ===== */
+  .info-window {
+    font-family: 'Noto Sans JP', sans-serif;
+    padding: 4px;
+    min-width: 180px;
+  }
+
+  .iw-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .iw-addr {
+    font-size: 11px;
+    color: var(--ink-light);
+    margin-bottom: 8px;
+  }
+
+  .iw-btn {
+    padding: 5px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 500;
+  }
+
+  .iw-add { background: var(--accent); color: white; }
+  .iw-add:hover { background: #a86c2e; }
+
+  /* ===== SCHEDULE DAY SELECTOR ===== */
+  .day-selector {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .day-btn {
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: white;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--ink-light);
+  }
+
+  .day-btn:hover, .day-btn.selected { background: var(--accent); color: white; border-color: var(--accent); }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .app { grid-template-columns: 1fr; grid-template-rows: 1fr 50vh; }
+    .map-container { order: -1; }
+    .sidebar { height: 50vh; }
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    margin-left: 4px;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-light);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    margin-top: 12px;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 12px 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div>
+    <div class="header-title">✈ 旅のしおり</div>
+    <div class="header-trip" id="tripLabel">旅行先・期間を設定してください</div>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" onclick="openTripConfig()">⚙ 旅行設定</button>
+    <button class="btn btn-primary" onclick="exportData()">📤 共有用エクスポート</button>
+  </div>
+</header>
+
+<!-- APP LAYOUT -->
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('spots')" id="tab-spots">
+        <span class="tab-icon">📍</span>
+        行きたい場所
+      </button>
+      <button class="tab" onclick="switchTab('schedule')" id="tab-schedule">
+        <span class="tab-icon">🗓</span>
+        日程
+      </button>
+      <button class="tab" onclick="switchTab('booking')" id="tab-booking">
+        <span class="tab-icon">🏨</span>
+        予約
+      </button>
+    </div>
+
+    <!-- SPOTS PANEL -->
+    <div class="panel active" id="panel-spots">
+      <div class="search-wrapper" style="position:relative">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" id="searchInput" placeholder="場所を検索（例：ホイアン ランタン）" autocomplete="off">
+        <div class="search-results" id="searchResults" style="display:none"></div>
+      </div>
+
+      <div class="panel-header">
+        <span class="panel-title">行きたいリスト</span>
+        <span style="font-size:12px;color:var(--ink-light)" id="spotCount">0件</span>
+      </div>
+
+      <div class="panel-body" id="spotList">
+        <div class="empty-state">
+          <div class="empty-icon">🗺</div>
+          <div class="empty-text">上の検索欄で場所を探して<br>リストに追加しましょう</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHEDULE PANEL -->
+    <div class="panel" id="panel-schedule">
+      <div class="panel-header">
+        <span class="panel-title">日程・タイムライン</span>
+      </div>
+
+      <div class="panel-body" id="scheduleList">
+        <div class="empty-state">
+          <div class="empty-icon">🗓</div>
+          <div class="empty-text">行きたいリストのスポットから<br>日程に追加できます</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOOKING PANEL -->
+    <div class="panel" id="panel-booking">
+      <div class="panel-header">
+        <span class="panel-title">予約情報</span>
+        <button class="btn btn-primary" style="font-size:12px;padding:6px 12px" onclick="openAddBooking()">＋ 追加</button>
+      </div>
+
+      <div class="panel-body" id="bookingList">
+        <div class="empty-state">
+          <div class="empty-icon">🏨</div>
+          <div class="empty-text">ホテル・レストランなどの<br>予約情報を管理できます</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div class="map-container">
+    <div id="map"></div>
+    <div class="map-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#c17f3e"></div>行きたい場所</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#4a7c59"></div>日程に追加済み</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: TRIP CONFIG -->
+<div class="modal-overlay" id="tripModal">
+  <div class="modal">
+    <div class="modal-title">✈ 旅行設定</div>
+    <div class="form-row">
+      <div class="form-field">
+        <div class="form-label">旅行先</div>
+        <input class="form-input" id="tripDest" placeholder="例：ホイアン、ベトナム">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <div class="form-label">出発日</div>
+        <input class="form-input" type="date" id="tripStart">
+      </div>
+      <div class="form-field">
+        <div class="form-label">帰国日</div>
+        <input class="form-input" type="date" id="tripEnd">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <div class="form-label">メンバー</div>
+        <input class="form-input" id="tripMembers" placeholder="例：自分・夫">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeTripConfig()" style="color:var(--ink-light);border-color:var(--border)">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveTripConfig()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ADD BOOKING -->
+<div class="modal-overlay" id="bookingModal">
+  <div class="modal">
+    <div class="modal-title">🏨 予約情報を追加</div>
+    <div class="form-row">
+      <div class="form-field">
+        <div class="form-label">種類</div>
+        <select class="form-select" id="bookingType">
+          <option value="hotel">🏨 ホテル</option>
+          <option value="restaurant">🍽 レストラン</option>
+          <option value="transport">✈ 交通</option>
+          <option value="other">📋 その他</option>
+        </select>
+      </div>
+      <div class="form-field" style="flex:2">
+        <div class="form-label">名前</div>
+        <input class="form-input" id="bookingName" placeholder="例：ホイアン リバーサイドホテル">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <div class="form-label">チェックイン / 日時</div>
+        <input class="form-input" type="date" id="bookingDate">
+      </div>
+      <div class="form-field">
+        <div class="form-label">チェックアウト / 終了</div>
+        <input class="form-input" type="date" id="bookingDateEnd">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <div class="form-label">確認番号・予約番号</div>
+        <input class="form-input" id="bookingRef" placeholder="例：ABC123">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <div class="form-label">メモ</div>
+        <input class="form-input" id="bookingNote" placeholder="例：朝食付き、禁煙ルーム">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeAddBooking()" style="color:var(--ink-light);border-color:var(--border)">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveBooking()">追加</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ADD TO SCHEDULE -->
+<div class="modal-overlay" id="scheduleModal">
+  <div class="modal">
+    <div class="modal-title" id="scheduleModalTitle">日程に追加</div>
+    <div class="form-row">
+      <div class="form-field">
+        <div class="form-label">日にち</div>
+        <select class="form-select" id="scheduleDay" style="width:100%"></select>
+      </div>
+      <div class="form-field">
+        <div class="form-label">時間</div>
+        <input class="form-input" type="time" id="scheduleTime" value="10:00">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <div class="form-label">メモ</div>
+        <input class="form-input" id="scheduleMemo" placeholder="例：ランチで立ち寄る">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeScheduleModal()" style="color:var(--ink-light);border-color:var(--border)">キャンセル</button>
+      <button class="btn btn-primary" onclick="confirmAddToSchedule()">追加</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== STATE =====
+let state = {
+  trip: { dest: '', start: '', end: '', members: '' },
+  spots: [],
+  schedule: [],
+  bookings: []
+};
+
+let map, geocoder, placesService, autocompleteService, infoWindow;
+let markers = {};
+let pendingSpot = null;
+let scheduleSpotId = null;
+
+const CATEGORY_ICONS = {
+  food: '🍽',
+  sight: '🏛',
+  hotel: '🏨',
+  shop: '🛍',
+  other: '📍'
+};
+
+const CATEGORY_LABELS = {
+  food: 'グルメ',
+  sight: '観光',
+  hotel: '宿泊',
+  shop: 'ショッピング',
+  other: 'その他'
+};
+
+// ===== SHEETS SYNC =====
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxW5TurDzgpNMKZZpn25qzFdqMWbtknUSzIs8k5IPmACEntLeprUoQNw__VxxqIMxuXUA/exec';
+let isSyncing = false;
+
+function showSyncStatus(msg, color) {
+  let el = document.getElementById('syncStatus');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'syncStatus';
+    el.style.cssText = 'position:fixed;bottom:16px;right:16px;padding:8px 16px;border-radius:8px;font-size:12px;font-family:Noto Sans JP,sans-serif;z-index:9999;transition:all 0.3s;box-shadow:0 2px 8px rgba(0,0,0,0.2)';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.background = color || '#2c2416';
+  el.style.color = 'white';
+  el.style.opacity = '1';
+  clearTimeout(el._hide);
+  el._hide = setTimeout(() => { el.style.opacity = '0'; }, 2500);
+}
+
+async function loadState() {
+  showSyncStatus('📡 データを読み込み中…');
+  try {
+    const res = await fetch(SHEET_URL + '?action=read');
+    const data = await res.json();
+    if (data && data.spots) {
+      state = { ...state, ...data };
+      showSyncStatus('✅ 同期完了', '#4a7c59');
+    }
+  } catch(e) {
+    // fallback to localStorage
+    try {
+      const saved = localStorage.getItem('travel-itinerary');
+      if (saved) state = JSON.parse(saved);
+    } catch(e2) {}
+    showSyncStatus('⚠ オフラインモード', '#c17f3e');
+  }
+}
+
+async function saveState() {
+  localStorage.setItem('travel-itinerary', JSON.stringify(state));
+  if (isSyncing) return;
+  isSyncing = true;
+  showSyncStatus('💾 保存中…');
+  try {
+    await fetch(SHEET_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'action=write&data=' + encodeURIComponent(JSON.stringify(state))
+    });
+    showSyncStatus('✅ 保存・同期完了', '#4a7c59');
+  } catch(e) {
+    showSyncStatus('⚠ オフライン保存のみ', '#c17f3e');
+  } finally {
+    isSyncing = false;
+  }
+}
+
+// 30秒ごとに自動更新
+setInterval(async () => {
+  try {
+    const res = await fetch(SHEET_URL + '?action=read');
+    const data = await res.json();
+    if (data && data.spots) {
+      state = { ...state, ...data };
+      renderAll();
+    }
+  } catch(e) {}
+}, 30000);
+
+// ===== MAP INIT =====
+async function initMap() {
+  await loadState();
+
+  const center = { lat: 15.8801, lng: 108.3380 }; // Hoi An default
+  map = new google.maps.Map(document.getElementById('map'), {
+    center,
+    zoom: 14,
+    styles: [
+      { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'on' }] },
+      { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#a8d4e6' }] },
+      { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: '#f5f0e8' }] },
+      { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
+      { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#e0d5c0' }] },
+    ],
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: false
+  });
+
+  geocoder = new google.maps.Geocoder();
+  infoWindow = new google.maps.InfoWindow();
+
+  const input = document.getElementById('searchInput');
+  autocompleteService = new google.maps.places.AutocompleteService();
+  placesService = new google.maps.places.PlacesService(map);
+
+  input.addEventListener('input', handleSearchInput);
+  input.addEventListener('keydown', e => { if (e.key === 'Escape') hideResults(); });
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.search-wrapper')) hideResults();
+  });
+
+  renderAll();
+  updateTripLabel();
+}
+
+// ===== SEARCH =====
+let searchTimeout;
+function handleSearchInput(e) {
+  const val = e.target.value.trim();
+  clearTimeout(searchTimeout);
+  if (!val) { hideResults(); return; }
+
+  searchTimeout = setTimeout(() => {
+    const dest = state.trip.dest || 'ホイアン ベトナム';
+    autocompleteService.getPlacePredictions({
+      input: val + ' ' + dest,
+      language: 'ja'
+    }, (predictions, status) => {
+      if (status !== google.maps.places.PlacesServiceStatus.OK || !predictions) {
+        hideResults(); return;
+      }
+      showResults(predictions);
+    });
+  }, 300);
+}
+
+function showResults(predictions) {
+  const el = document.getElementById('searchResults');
+  el.innerHTML = '';
+  el.style.display = 'block';
+
+  predictions.slice(0, 6).forEach(p => {
+    const item = document.createElement('div');
+    item.className = 'search-result-item';
+    item.innerHTML = `
+      <div class="result-name">${p.structured_formatting.main_text}</div>
+      <div class="result-addr">${p.structured_formatting.secondary_text || ''}</div>
+    `;
+    item.addEventListener('click', () => selectPlace(p.place_id, p.structured_formatting.main_text));
+    el.appendChild(item);
+  });
+}
+
+function hideResults() {
+  document.getElementById('searchResults').style.display = 'none';
+}
+
+function selectPlace(placeId, name) {
+  hideResults();
+  document.getElementById('searchInput').value = '';
+
+  placesService.getDetails({
+    placeId,
+    fields: ['name', 'formatted_address', 'geometry', 'place_id', 'types']
+  }, (place, status) => {
+    if (status !== google.maps.places.PlacesServiceStatus.OK) return;
+
+    const spot = {
+      id: Date.now().toString(),
+      placeId: place.place_id,
+      name: place.name,
+      address: place.formatted_address,
+      lat: place.geometry.location.lat(),
+      lng: place.geometry.location.lng(),
+      category: guessCategory(place.types),
+      memo: '',
+      inSchedule: false
+    };
+
+    state.spots.push(spot);
+    saveState();
+    renderSpots();
+    addMarker(spot);
+
+    map.panTo({ lat: spot.lat, lng: spot.lng });
+    map.setZoom(16);
+  });
+}
+
+function guessCategory(types) {
+  if (!types) return 'other';
+  if (types.some(t => ['restaurant','food','cafe','bar','bakery'].includes(t))) return 'food';
+  if (types.some(t => ['lodging','hotel'].includes(t))) return 'hotel';
+  if (types.some(t => ['store','shopping_mall','clothing_store'].includes(t))) return 'shop';
+  if (types.some(t => ['tourist_attraction','museum','park','place_of_worship','point_of_interest'].includes(t))) return 'sight';
+  return 'other';
+}
+
+// ===== MARKERS =====
+function addMarker(spot) {
+  if (markers[spot.id]) markers[spot.id].setMap(null);
+
+  const isScheduled = state.schedule.some(s => s.spotId === spot.id);
+  const color = isScheduled ? '#4a7c59' : '#c17f3e';
+
+  const marker = new google.maps.Marker({
+    position: { lat: spot.lat, lng: spot.lng },
+    map,
+    title: spot.name,
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 10,
+      fillColor: color,
+      fillOpacity: 0.9,
+      strokeColor: 'white',
+      strokeWeight: 2
+    },
+    animation: google.maps.Animation.DROP
+  });
+
+  marker.addListener('click', () => {
+    const content = `
+      <div class="info-window">
+        <div class="iw-name">${spot.name}</div>
+        <div class="iw-addr">${spot.address}</div>
+        <button class="iw-btn iw-add" onclick="openScheduleModal('${spot.id}')">＋ 日程に追加</button>
+      </div>
+    `;
+    infoWindow.setContent(content);
+    infoWindow.open(map, marker);
+    highlightSpotCard(spot.id);
+  });
+
+  markers[spot.id] = marker;
+}
+
+function refreshMarker(spotId) {
+  const spot = state.spots.find(s => s.id === spotId);
+  if (spot) addMarker(spot);
+}
+
+function highlightSpotCard(spotId) {
+  document.querySelectorAll('.spot-card').forEach(c => c.classList.remove('selected'));
+  const card = document.getElementById('spot-' + spotId);
+  if (card) {
+    card.classList.add('selected');
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+// ===== RENDER SPOTS =====
+function renderSpots() {
+  const list = document.getElementById('spotList');
+  const count = document.getElementById('spotCount');
+  count.textContent = state.spots.length + '件';
+
+  if (!state.spots.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🗺</div><div class="empty-text">上の検索欄で場所を探して<br>リストに追加しましょう</div></div>`;
+    return;
+  }
+
+  list.innerHTML = '';
+  state.spots.forEach(spot => {
+    const isScheduled = state.schedule.some(s => s.spotId === spot.id);
+    const card = document.createElement('div');
+    card.className = 'spot-card';
+    card.id = 'spot-' + spot.id;
+
+    card.innerHTML = `
+      <button class="spot-delete" onclick="deleteSpot('${spot.id}',event)" title="削除">✕</button>
+      <div class="spot-card-header">
+        <div class="spot-icon cat-${spot.category}">${CATEGORY_ICONS[spot.category]}</div>
+        <div class="spot-info">
+          <div class="spot-name">${spot.name}</div>
+          <div class="spot-addr">${spot.address}</div>
+        </div>
+      </div>
+      <div class="spot-actions">
+        <select class="spot-category-select" onchange="changeCategory('${spot.id}',this.value)">
+          ${Object.entries(CATEGORY_ICONS).map(([k,v]) => `<option value="${k}" ${spot.category===k?'selected':''}>${v} ${CATEGORY_LABELS[k]}</option>`).join('')}
+        </select>
+        ${isScheduled
+          ? `<span class="spot-tag scheduled">✅ 日程済み</span>`
+          : `<button class="spot-tag wishlist" onclick="openScheduleModal('${spot.id}')">＋ 日程に追加</button>`
+        }
+        <button class="spot-tag" style="background:#f0f0f0;color:#666;border-color:#ddd" onclick="flyTo('${spot.id}')">🗺 地図</button>
+      </div>
+      ${spot.memo ? `<div class="spot-memo">${spot.memo}</div>` : ''}
+      <textarea class="memo-textarea" placeholder="メモを入力…" onchange="updateMemo('${spot.id}',this.value)">${spot.memo||''}</textarea>
+    `;
+
+    card.addEventListener('click', e => {
+      if (e.target.closest('button,select,textarea')) return;
+      flyTo(spot.id);
+    });
+
+    list.appendChild(card);
+  });
+}
+
+function changeCategory(id, cat) {
+  const spot = state.spots.find(s => s.id === id);
+  if (spot) { spot.category = cat; saveState(); renderSpots(); }
+}
+
+function updateMemo(id, memo) {
+  const spot = state.spots.find(s => s.id === id);
+  if (spot) { spot.memo = memo; saveState(); }
+}
+
+function deleteSpot(id, e) {
+  e.stopPropagation();
+  if (!confirm('このスポットを削除しますか？')) return;
+  state.spots = state.spots.filter(s => s.id !== id);
+  state.schedule = state.schedule.filter(s => s.spotId !== id);
+  if (markers[id]) { markers[id].setMap(null); delete markers[id]; }
+  saveState();
+  renderSpots();
+  renderSchedule();
+}
+
+function flyTo(id) {
+  const spot = state.spots.find(s => s.id === id);
+  if (!spot) return;
+  map.panTo({ lat: spot.lat, lng: spot.lng });
+  map.setZoom(17);
+  if (markers[id]) google.maps.event.trigger(markers[id], 'click');
+  switchTab('spots');
+}
+
+// ===== SCHEDULE =====
+function openScheduleModal(spotId) {
+  scheduleSpotId = spotId;
+  const spot = state.spots.find(s => s.id === spotId);
+  document.getElementById('scheduleModalTitle').textContent = '「' + (spot ? spot.name : '') + '」を日程に追加';
+  document.getElementById('scheduleMemo').value = '';
+  document.getElementById('scheduleTime').value = '10:00';
+
+  const sel = document.getElementById('scheduleDay');
+  sel.innerHTML = '';
+  const days = getTripDays();
+  if (!days.length) {
+    sel.innerHTML = '<option value="1">1日目</option>';
+    for (let i = 2; i <= 7; i++) sel.innerHTML += `<option value="${i}">${i}日目</option>`;
+  } else {
+    days.forEach((d, i) => {
+      const opt = document.createElement('option');
+      opt.value = i + 1;
+      opt.textContent = `${i + 1}日目（${d}）`;
+      sel.appendChild(opt);
+    });
+  }
+
+  document.getElementById('scheduleModal').classList.add('open');
+}
+
+function closeScheduleModal() {
+  document.getElementById('scheduleModal').classList.remove('open');
+  scheduleSpotId = null;
+}
+
+function confirmAddToSchedule() {
+  if (!scheduleSpotId) return;
+  const spot = state.spots.find(s => s.id === scheduleSpotId);
+  if (!spot) return;
+
+  const day = parseInt(document.getElementById('scheduleDay').value);
+  const time = document.getElementById('scheduleTime').value;
+  const memo = document.getElementById('scheduleMemo').value;
+
+  state.schedule.push({ id: Date.now().toString(), spotId: scheduleSpotId, day, time, memo });
+  saveState();
+  closeScheduleModal();
+  renderSpots();
+  renderSchedule();
+  refreshMarker(scheduleSpotId);
+  switchTab('schedule');
+}
+
+function getTripDays() {
+  if (!state.trip.start || !state.trip.end) return [];
+  const days = [];
+  const start = new Date(state.trip.start);
+  const end = new Date(state.trip.end);
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    days.push(d.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric', weekday: 'short' }));
+  }
+  return days;
+}
+
+function renderSchedule() {
+  const list = document.getElementById('scheduleList');
+  if (!state.schedule.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🗓</div><div class="empty-text">行きたいリストのスポットから<br>日程に追加できます</div></div>`;
+    return;
+  }
+
+  const byDay = {};
+  state.schedule.forEach(s => {
+    if (!byDay[s.day]) byDay[s.day] = [];
+    byDay[s.day].push(s);
+  });
+
+  Object.keys(byDay).sort((a,b) => a-b).forEach(day => {
+    byDay[day].sort((a,b) => a.time.localeCompare(b.time));
+  });
+
+  const days = getTripDays();
+  list.innerHTML = '';
+
+  Object.keys(byDay).sort((a,b) => a-b).forEach(day => {
+    const dayLabel = days[day-1] ? `${day}日目（${days[day-1]}）` : `${day}日目`;
+    const group = document.createElement('div');
+    group.className = 'day-group';
+    group.innerHTML = `<div class="day-header"><span class="day-label">${dayLabel}</span><div class="day-line"></div></div>`;
+
+    byDay[day].forEach(item => {
+      const spot = state.spots.find(s => s.id === item.spotId);
+      if (!spot) return;
+      const row = document.createElement('div');
+      row.className = 'schedule-item';
+      row.innerHTML = `
+        <input class="time-input" type="time" value="${item.time}" onchange="updateScheduleTime('${item.id}',this.value)">
+        <div class="schedule-content">
+          <div class="schedule-name">${CATEGORY_ICONS[spot.category]} ${spot.name}</div>
+          ${item.memo ? `<div class="schedule-note">${item.memo}</div>` : ''}
+        </div>
+        <button class="schedule-delete" onclick="deleteSchedule('${item.id}','${spot.id}')" title="削除">✕</button>
+      `;
+      row.addEventListener('click', e => {
+        if (e.target.closest('input,button')) return;
+        flyTo(spot.id);
+      });
+      group.appendChild(row);
+    });
+
+    list.appendChild(group);
+  });
+}
+
+function updateScheduleTime(id, time) {
+  const item = state.schedule.find(s => s.id === id);
+  if (item) { item.time = time; saveState(); renderSchedule(); }
+}
+
+function deleteSchedule(id, spotId) {
+  state.schedule = state.schedule.filter(s => s.id !== id);
+  saveState();
+  renderSpots();
+  renderSchedule();
+  refreshMarker(spotId);
+}
+
+// ===== BOOKINGS =====
+function openAddBooking() { document.getElementById('bookingModal').classList.add('open'); }
+function closeAddBooking() { document.getElementById('bookingModal').classList.remove('open'); }
+
+function saveBooking() {
+  const name = document.getElementById('bookingName').value.trim();
+  if (!name) { alert('名前を入力してください'); return; }
+
+  state.bookings.push({
+    id: Date.now().toString(),
+    type: document.getElementById('bookingType').value,
+    name,
+    date: document.getElementById('bookingDate').value,
+    dateEnd: document.getElementById('bookingDateEnd').value,
+    ref: document.getElementById('bookingRef').value,
+    note: document.getElementById('bookingNote').value
+  });
+
+  saveState();
+  closeAddBooking();
+  renderBookings();
+  ['bookingName','bookingDate','bookingDateEnd','bookingRef','bookingNote'].forEach(id => document.getElementById(id).value = '');
+}
+
+function deleteBooking(id) {
+  if (!confirm('この予約情報を削除しますか？')) return;
+  state.bookings = state.bookings.filter(b => b.id !== id);
+  saveState();
+  renderBookings();
+}
+
+const TYPE_LABELS = { hotel: '🏨 ホテル', restaurant: '🍽 レストラン', transport: '✈ 交通', other: '📋 その他' };
+
+function renderBookings() {
+  const list = document.getElementById('bookingList');
+  if (!state.bookings.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🏨</div><div class="empty-text">ホテル・レストランなどの<br>予約情報を管理できます</div></div>`;
+    return;
+  }
+
+  list.innerHTML = '';
+  state.bookings.forEach(b => {
+    const card = document.createElement('div');
+    card.className = 'booking-card';
+    card.innerHTML = `
+      <div class="booking-header">
+        <span class="booking-type ${b.type}">${TYPE_LABELS[b.type]}</span>
+        <button class="booking-delete" onclick="deleteBooking('${b.id}')">✕</button>
+      </div>
+      <div class="booking-name">${b.name}</div>
+      ${b.date ? `<div class="booking-detail"><span>日程</span>${formatDate(b.date)}${b.dateEnd ? ' → ' + formatDate(b.dateEnd) : ''}</div>` : ''}
+      ${b.ref ? `<div class="booking-detail"><span>確認番号</span>${b.ref}</div>` : ''}
+      ${b.note ? `<div class="booking-detail"><span>メモ</span>${b.note}</div>` : ''}
+    `;
+    list.appendChild(card);
+  });
+}
+
+function formatDate(str) {
+  if (!str) return '';
+  const d = new Date(str);
+  return d.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric', weekday: 'short' });
+}
+
+// ===== TRIP CONFIG =====
+function openTripConfig() {
+  document.getElementById('tripDest').value = state.trip.dest;
+  document.getElementById('tripStart').value = state.trip.start;
+  document.getElementById('tripEnd').value = state.trip.end;
+  document.getElementById('tripMembers').value = state.trip.members;
+  document.getElementById('tripModal').classList.add('open');
+}
+
+function closeTripConfig() { document.getElementById('tripModal').classList.remove('open'); }
+
+function saveTripConfig() {
+  state.trip.dest = document.getElementById('tripDest').value;
+  state.trip.start = document.getElementById('tripStart').value;
+  state.trip.end = document.getElementById('tripEnd').value;
+  state.trip.members = document.getElementById('tripMembers').value;
+  saveState();
+  closeTripConfig();
+  updateTripLabel();
+}
+
+function updateTripLabel() {
+  const el = document.getElementById('tripLabel');
+  if (state.trip.dest) {
+    const parts = [state.trip.dest];
+    if (state.trip.start && state.trip.end) {
+      parts.push(formatDate(state.trip.start) + ' 〜 ' + formatDate(state.trip.end));
+    }
+    if (state.trip.members) parts.push(state.trip.members);
+    el.textContent = parts.join('　');
+  } else {
+    el.textContent = '旅行先・期間を設定してください';
+  }
+}
+
+// ===== TABS =====
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+// ===== RENDER ALL =====
+function renderAll() {
+  state.spots.forEach(spot => addMarker(spot));
+  renderSpots();
+  renderSchedule();
+  renderBookings();
+  updateTripLabel();
+}
+
+// ===== EXPORT =====
+function exportData() {
+  const data = JSON.stringify(state, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'travel-itinerary.json';
+  a.click();
+  URL.revokeObjectURL(url);
+
+  // Also show import instructions
+  alert('ファイルをダウンロードしました！\n\nご夫婦で共有する場合：\n1. このJSONファイルをLINEやメールで送る\n2. 受け取った方はこのアプリをブラウザで開いてF12→コンソールで loadFromFile() を実行\n\n※ 同じPCなら自動でデータが保存されています');
+}
+</script>
+
+<!-- Google Maps API -->
+<script async defer
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyClr6fZamHIM3TC5FJgJVMyXOnjgfAg76A&libraries=places&language=ja&callback=initMap">
+</script>
+
+</body>
+</html>

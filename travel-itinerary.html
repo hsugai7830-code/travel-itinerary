@@ -459,6 +459,7 @@
   .booking-type.restaurant { background: #fff3e0; color: #e65100; }
   .booking-type.transport { background: #e8f5e9; color: #1b5e20; }
   .booking-type.other { background: #f3e5f5; color: #6a1b9a; }
+  .booking-type.flight { background: #e3f2fd; color: #1565c0; }
 
   .booking-name {
     font-size: 14px;
@@ -893,10 +894,10 @@
     <div class="form-row">
       <div class="form-field">
         <div class="form-label">種類</div>
-        <select class="form-select" id="bookingType">
+        <select class="form-select" id="bookingType" onchange="toggleBookingFields()">
           <option value="hotel">🏨 ホテル</option>
+          <option value="flight">✈ フライト</option>
           <option value="restaurant">🍽 レストラン</option>
-          <option value="transport">✈ 交通</option>
           <option value="other">📋 その他</option>
         </select>
       </div>
@@ -905,14 +906,73 @@
         <input class="form-input" id="bookingName" placeholder="例：ホイアン リバーサイドホテル">
       </div>
     </div>
-    <div class="form-row">
-      <div class="form-field">
-        <div class="form-label">チェックイン / 日時</div>
-        <input class="form-input" type="date" id="bookingDate">
+    <!-- ホテル用フィールド -->
+    <div id="hotelFields">
+      <div class="form-row">
+        <div class="form-field">
+          <div class="form-label">チェックイン日</div>
+          <input class="form-input" type="date" id="bookingDate">
+        </div>
+        <div class="form-field">
+          <div class="form-label">チェックイン時間</div>
+          <input class="form-input" type="time" id="bookingCheckinTime" value="15:00">
+        </div>
       </div>
-      <div class="form-field">
-        <div class="form-label">チェックアウト / 終了</div>
-        <input class="form-input" type="date" id="bookingDateEnd">
+      <div class="form-row">
+        <div class="form-field">
+          <div class="form-label">チェックアウト日</div>
+          <input class="form-input" type="date" id="bookingDateEnd">
+        </div>
+        <div class="form-field">
+          <div class="form-label">チェックアウト時間</div>
+          <input class="form-input" type="time" id="bookingCheckoutTime" value="11:00">
+        </div>
+      </div>
+    </div>
+    <!-- フライト用フィールド -->
+    <div id="flightFields" style="display:none">
+      <div class="form-row">
+        <div class="form-field">
+          <div class="form-label">便名</div>
+          <input class="form-input" id="flightNumber" placeholder="例：VN301">
+        </div>
+        <div class="form-field">
+          <div class="form-label">種別</div>
+          <select class="form-select" id="flightDirection">
+            <option value="depart">🛫 出発便</option>
+            <option value="return">🛬 帰国便</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <div class="form-label">出発日</div>
+          <input class="form-input" type="date" id="flightDate">
+        </div>
+        <div class="form-field">
+          <div class="form-label">出発時刻</div>
+          <input class="form-input" type="time" id="flightDepartTime">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <div class="form-label">出発空港</div>
+          <input class="form-input" id="flightFrom" placeholder="例：成田 (NRT)">
+        </div>
+        <div class="form-field">
+          <div class="form-label">到着空港</div>
+          <input class="form-input" id="flightTo" placeholder="例：ダナン (DAD)">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <div class="form-label">到着日</div>
+          <input class="form-input" type="date" id="flightArrivalDate">
+        </div>
+        <div class="form-field">
+          <div class="form-label">到着時刻</div>
+          <input class="form-input" type="time" id="flightArrivalTime">
+        </div>
       </div>
     </div>
     <div class="form-row">
@@ -1374,9 +1434,42 @@ function getTripDays() {
   return days;
 }
 
+function getBookingScheduleItems() {
+  // ブッキングから日程アイテムを生成
+  const items = [];
+  const tripStart = state.trip.start ? new Date(state.trip.start) : null;
+
+  state.bookings.forEach(b => {
+    if (b.type === 'hotel') {
+      if (b.date && tripStart) {
+        const d = new Date(b.date);
+        const day = Math.round((d - tripStart) / 86400000) + 1;
+        if (day >= 1) items.push({ type: 'booking', bookingId: b.id, day, time: b.checkinTime || '15:00', label: `🏨 ${b.name} チェックイン`, note: '' });
+      }
+      if (b.dateEnd && tripStart) {
+        const d = new Date(b.dateEnd);
+        const day = Math.round((d - tripStart) / 86400000) + 1;
+        if (day >= 1) items.push({ type: 'booking', bookingId: b.id, day, time: b.checkoutTime || '11:00', label: `🏨 ${b.name} チェックアウト`, note: '' });
+      }
+    } else if (b.type === 'flight') {
+      if (b.date && tripStart) {
+        const d = new Date(b.date);
+        const day = Math.round((d - tripStart) / 86400000) + 1;
+        const dir = b.flightDirection === 'return' ? '🛬' : '🛫';
+        const route = b.flightFrom && b.flightTo ? `${b.flightFrom} → ${b.flightTo}` : '';
+        if (day >= 1) items.push({ type: 'booking', bookingId: b.id, day, time: b.departTime || '00:00', label: `${dir} ${b.name}${b.flightNumber ? ' ' + b.flightNumber : ''}`, note: route });
+      }
+    }
+  });
+  return items;
+}
+
 function renderSchedule() {
   const list = document.getElementById('scheduleList');
-  if (!state.schedule.length) {
+  const bookingItems = getBookingScheduleItems();
+  const hasAnything = state.schedule.length || bookingItems.length;
+
+  if (!hasAnything) {
     list.innerHTML = `<div class="empty-state"><div class="empty-icon">🗓</div><div class="empty-text">行きたいリストのスポットから<br>日程に追加できます</div></div>`;
     return;
   }
@@ -1384,11 +1477,15 @@ function renderSchedule() {
   const byDay = {};
   state.schedule.forEach(s => {
     if (!byDay[s.day]) byDay[s.day] = [];
-    byDay[s.day].push(s);
+    byDay[s.day].push({ ...s, _type: 'spot' });
+  });
+  bookingItems.forEach(b => {
+    if (!byDay[b.day]) byDay[b.day] = [];
+    byDay[b.day].push({ ...b, _type: 'booking' });
   });
 
   Object.keys(byDay).sort((a,b) => a-b).forEach(day => {
-    byDay[day].sort((a,b) => a.time.localeCompare(b.time));
+    byDay[day].sort((a,b) => (a.time||'').localeCompare(b.time||''));
   });
 
   const days = getTripDays();
@@ -1401,22 +1498,34 @@ function renderSchedule() {
     group.innerHTML = `<div class="day-header"><span class="day-label">${dayLabel}</span><div class="day-line"></div></div>`;
 
     byDay[day].forEach(item => {
-      const spot = state.spots.find(s => s.id === item.spotId);
-      if (!spot) return;
       const row = document.createElement('div');
       row.className = 'schedule-item';
-      row.innerHTML = `
-        <input class="time-input" type="time" value="${item.time}" onchange="updateScheduleTime('${item.id}',this.value)">
-        <div class="schedule-content">
-          <div class="schedule-name">${CATEGORY_ICONS[spot.category]} ${spot.name}</div>
-          ${item.memo ? `<div class="schedule-note">${item.memo}</div>` : ''}
-        </div>
-        <button class="schedule-delete" onclick="deleteSchedule('${item.id}','${spot.id}')" title="削除">✕</button>
-      `;
-      row.addEventListener('click', e => {
-        if (e.target.closest('input,button')) return;
-        flyTo(spot.id);
-      });
+
+      if (item._type === 'booking') {
+        row.style.borderLeft = '3px solid #3a6080';
+        row.innerHTML = `
+          <span class="schedule-time" style="color:#3a6080">${item.time}</span>
+          <div class="schedule-content">
+            <div class="schedule-name">${item.label}</div>
+            ${item.note ? `<div class="schedule-note">${item.note}</div>` : ''}
+          </div>
+        `;
+      } else {
+        const spot = state.spots.find(s => s.id === item.spotId);
+        if (!spot) return;
+        row.innerHTML = `
+          <input class="time-input" type="time" value="${item.time}" onchange="updateScheduleTime('${item.id}',this.value)">
+          <div class="schedule-content">
+            <div class="schedule-name">${CATEGORY_ICONS[spot.category]} ${spot.name}</div>
+            ${item.memo ? `<div class="schedule-note">${item.memo}</div>` : ''}
+          </div>
+          <button class="schedule-delete" onclick="deleteSchedule('${item.id}','${spot.id}')" title="削除">✕</button>
+        `;
+        row.addEventListener('click', e => {
+          if (e.target.closest('input,button')) return;
+          flyTo(spot.id);
+        });
+      }
       group.appendChild(row);
     });
 
@@ -1441,24 +1550,52 @@ function deleteSchedule(id, spotId) {
 function openAddBooking() { document.getElementById('bookingModal').classList.add('open'); }
 function closeAddBooking() { document.getElementById('bookingModal').classList.remove('open'); }
 
+function toggleBookingFields() {
+  const type = document.getElementById('bookingType').value;
+  document.getElementById('hotelFields').style.display = type === 'hotel' ? '' : 'none';
+  document.getElementById('flightFields').style.display = type === 'flight' ? '' : 'none';
+}
+
 function saveBooking() {
   const name = document.getElementById('bookingName').value.trim();
   if (!name) { alert('名前を入力してください'); return; }
+  const type = document.getElementById('bookingType').value;
 
-  state.bookings.push({
+  const booking = {
     id: Date.now().toString(),
-    type: document.getElementById('bookingType').value,
+    type,
     name,
-    date: document.getElementById('bookingDate').value,
-    dateEnd: document.getElementById('bookingDateEnd').value,
     ref: document.getElementById('bookingRef').value,
     note: document.getElementById('bookingNote').value
-  });
+  };
 
+  if (type === 'hotel') {
+    booking.date = document.getElementById('bookingDate').value;
+    booking.checkinTime = document.getElementById('bookingCheckinTime').value;
+    booking.dateEnd = document.getElementById('bookingDateEnd').value;
+    booking.checkoutTime = document.getElementById('bookingCheckoutTime').value;
+  } else if (type === 'flight') {
+    booking.flightNumber = document.getElementById('flightNumber').value;
+    booking.flightDirection = document.getElementById('flightDirection').value;
+    booking.date = document.getElementById('flightDate').value;
+    booking.departTime = document.getElementById('flightDepartTime').value;
+    booking.flightFrom = document.getElementById('flightFrom').value;
+    booking.flightTo = document.getElementById('flightTo').value;
+    booking.arrivalDate = document.getElementById('flightArrivalDate').value;
+    booking.arrivalTime = document.getElementById('flightArrivalTime').value;
+  } else {
+    booking.date = document.getElementById('bookingDate').value;
+    booking.dateEnd = document.getElementById('bookingDateEnd').value;
+  }
+
+  state.bookings.push(booking);
   saveState();
   closeAddBooking();
   renderBookings();
-  ['bookingName','bookingDate','bookingDateEnd','bookingRef','bookingNote'].forEach(id => document.getElementById(id).value = '');
+  renderSchedule();
+  // reset
+  ['bookingName','bookingRef','bookingNote','flightNumber','flightFrom','flightTo'].forEach(id => document.getElementById(id).value = '');
+  ['bookingDate','bookingDateEnd','flightDate','flightArrivalDate'].forEach(id => document.getElementById(id).value = '');
 }
 
 function deleteBooking(id) {
@@ -1468,7 +1605,8 @@ function deleteBooking(id) {
   renderBookings();
 }
 
-const TYPE_LABELS = { hotel: '🏨 ホテル', restaurant: '🍽 レストラン', transport: '✈ 交通', other: '📋 その他' };
+const TYPE_LABELS = { hotel: '🏨 ホテル', flight: '✈ フライト', restaurant: '🍽 レストラン', other: '📋 その他' };
+const FLIGHT_DIR_LABELS = { depart: '🛫 出発便', return: '🛬 帰国便' };
 
 function renderBookings() {
   const list = document.getElementById('bookingList');
@@ -1481,15 +1619,30 @@ function renderBookings() {
   state.bookings.forEach(b => {
     const card = document.createElement('div');
     card.className = 'booking-card';
+    let details = '';
+
+    if (b.type === 'hotel') {
+      if (b.date) details += `<div class="booking-detail"><span>チェックイン</span>${formatDate(b.date)}${b.checkinTime ? ' ' + b.checkinTime : ''}</div>`;
+      if (b.dateEnd) details += `<div class="booking-detail"><span>チェックアウト</span>${formatDate(b.dateEnd)}${b.checkoutTime ? ' ' + b.checkoutTime : ''}</div>`;
+    } else if (b.type === 'flight') {
+      if (b.flightDirection) details += `<div class="booking-detail"><span>種別</span>${FLIGHT_DIR_LABELS[b.flightDirection] || b.flightDirection}</div>`;
+      if (b.flightNumber) details += `<div class="booking-detail"><span>便名</span>${b.flightNumber}</div>`;
+      if (b.date) details += `<div class="booking-detail"><span>出発</span>${formatDate(b.date)}${b.departTime ? ' ' + b.departTime : ''}${b.flightFrom ? ' ' + b.flightFrom : ''}</div>`;
+      if (b.arrivalDate) details += `<div class="booking-detail"><span>到着</span>${formatDate(b.arrivalDate)}${b.arrivalTime ? ' ' + b.arrivalTime : ''}${b.flightTo ? ' ' + b.flightTo : ''}</div>`;
+    } else {
+      if (b.date) details += `<div class="booking-detail"><span>日程</span>${formatDate(b.date)}${b.dateEnd ? ' → ' + formatDate(b.dateEnd) : ''}</div>`;
+    }
+
+    if (b.ref) details += `<div class="booking-detail"><span>確認番号</span>${b.ref}</div>`;
+    if (b.note) details += `<div class="booking-detail"><span>メモ</span>${b.note}</div>`;
+
     card.innerHTML = `
       <div class="booking-header">
-        <span class="booking-type ${b.type}">${TYPE_LABELS[b.type]}</span>
+        <span class="booking-type ${b.type}">${TYPE_LABELS[b.type] || b.type}</span>
         <button class="booking-delete" onclick="deleteBooking('${b.id}')">✕</button>
       </div>
       <div class="booking-name">${b.name}</div>
-      ${b.date ? `<div class="booking-detail"><span>日程</span>${formatDate(b.date)}${b.dateEnd ? ' → ' + formatDate(b.dateEnd) : ''}</div>` : ''}
-      ${b.ref ? `<div class="booking-detail"><span>確認番号</span>${b.ref}</div>` : ''}
-      ${b.note ? `<div class="booking-detail"><span>メモ</span>${b.note}</div>` : ''}
+      ${details}
     `;
     list.appendChild(card);
   });

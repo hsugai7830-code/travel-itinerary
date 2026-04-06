@@ -768,8 +768,8 @@
     <div class="header-trip" id="tripLabel">旅行先・期間を設定してください</div>
   </div>
   <div class="header-actions">
+    <button class="btn btn-ghost" onclick="manualSync()" id="syncBtn">🔄 今すぐ同期</button>
     <button class="btn btn-ghost" onclick="openTripConfig()">⚙ 旅行設定</button>
-    <button class="btn btn-primary" onclick="exportData()">📤 共有用エクスポート</button>
   </div>
 </header>
 
@@ -990,6 +990,112 @@
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeAddBooking()" style="color:var(--ink-light);border-color:var(--border)">キャンセル</button>
       <button class="btn btn-primary" onclick="saveBooking()">追加</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: EDIT BOOKING -->
+<div class="modal-overlay" id="editBookingModal">
+  <div class="modal">
+    <div class="modal-title">✏️ 予約情報を編集</div>
+    <input type="hidden" id="editBookingId">
+    <div class="form-row">
+      <div class="form-field">
+        <div class="form-label">種類</div>
+        <select class="form-select" id="editBookingType" onchange="toggleEditBookingFields()">
+          <option value="hotel">🏨 ホテル</option>
+          <option value="flight">✈ フライト</option>
+          <option value="restaurant">🍽 レストラン</option>
+          <option value="other">📋 その他</option>
+        </select>
+      </div>
+      <div class="form-field" style="flex:2">
+        <div class="form-label">名前</div>
+        <input class="form-input" id="editBookingName">
+      </div>
+    </div>
+    <div id="editHotelFields">
+      <div class="form-row">
+        <div class="form-field">
+          <div class="form-label">チェックイン日</div>
+          <input class="form-input" type="date" id="editBookingDate">
+        </div>
+        <div class="form-field">
+          <div class="form-label">チェックイン時間</div>
+          <input class="form-input" type="time" id="editBookingCheckinTime">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <div class="form-label">チェックアウト日</div>
+          <input class="form-input" type="date" id="editBookingDateEnd">
+        </div>
+        <div class="form-field">
+          <div class="form-label">チェックアウト時間</div>
+          <input class="form-input" type="time" id="editBookingCheckoutTime">
+        </div>
+      </div>
+    </div>
+    <div id="editFlightFields" style="display:none">
+      <div class="form-row">
+        <div class="form-field">
+          <div class="form-label">便名</div>
+          <input class="form-input" id="editFlightNumber">
+        </div>
+        <div class="form-field">
+          <div class="form-label">種別</div>
+          <select class="form-select" id="editFlightDirection">
+            <option value="depart">🛫 出発便</option>
+            <option value="return">🛬 帰国便</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <div class="form-label">出発日</div>
+          <input class="form-input" type="date" id="editFlightDate">
+        </div>
+        <div class="form-field">
+          <div class="form-label">出発時刻</div>
+          <input class="form-input" type="time" id="editFlightDepartTime">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <div class="form-label">出発空港</div>
+          <input class="form-input" id="editFlightFrom">
+        </div>
+        <div class="form-field">
+          <div class="form-label">到着空港</div>
+          <input class="form-input" id="editFlightTo">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <div class="form-label">到着日</div>
+          <input class="form-input" type="date" id="editFlightArrivalDate">
+        </div>
+        <div class="form-field">
+          <div class="form-label">到着時刻</div>
+          <input class="form-input" type="time" id="editFlightArrivalTime">
+        </div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <div class="form-label">確認番号・予約番号</div>
+        <input class="form-input" id="editBookingRef">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <div class="form-label">メモ</div>
+        <input class="form-input" id="editBookingNote">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeEditBooking()" style="color:var(--ink-light);border-color:var(--border)">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveEditBooking()">保存</button>
     </div>
   </div>
 </div>
@@ -1265,11 +1371,15 @@ function addMarker(spot) {
   });
 
   marker.addListener('click', () => {
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${spot.lat},${spot.lng}&destination_place_id=${spot.placeId}&travelmode=walking`;
     const content = `
       <div class="info-window">
         <div class="iw-name">${spot.name}</div>
         <div class="iw-addr">${spot.address}</div>
-        <button class="iw-btn iw-add" onclick="openScheduleModal('${spot.id}')">＋ 日程に追加</button>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <button class="iw-btn iw-add" onclick="openScheduleModal('${spot.id}')">＋ 日程に追加</button>
+          <a href="${mapsUrl}" target="_blank" style="padding:5px 12px;background:#4a7c59;color:white;border-radius:5px;font-size:12px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none">🗺 ナビ</a>
+        </div>
       </div>
     `;
     infoWindow.setContent(content);
@@ -1639,7 +1749,10 @@ function renderBookings() {
     card.innerHTML = `
       <div class="booking-header">
         <span class="booking-type ${b.type}">${TYPE_LABELS[b.type] || b.type}</span>
-        <button class="booking-delete" onclick="deleteBooking('${b.id}')">✕</button>
+        <div style="display:flex;gap:6px">
+          <button class="booking-delete" style="color:var(--accent)" onclick="openEditBooking('${b.id}')">✏️</button>
+          <button class="booking-delete" onclick="deleteBooking('${b.id}')">✕</button>
+        </div>
       </div>
       <div class="booking-name">${b.name}</div>
       ${details}
@@ -1704,6 +1817,93 @@ function renderAll() {
   renderSchedule();
   renderBookings();
   updateTripLabel();
+}
+
+// ===== EDIT BOOKING =====
+function openEditBooking(id) {
+  const b = state.bookings.find(x => x.id === id);
+  if (!b) return;
+  document.getElementById('editBookingId').value = id;
+  document.getElementById('editBookingType').value = b.type;
+  document.getElementById('editBookingName').value = b.name || '';
+  document.getElementById('editBookingRef').value = b.ref || '';
+  document.getElementById('editBookingNote').value = b.note || '';
+  toggleEditBookingFields();
+  if (b.type === 'hotel') {
+    document.getElementById('editBookingDate').value = b.date || '';
+    document.getElementById('editBookingCheckinTime').value = b.checkinTime || '15:00';
+    document.getElementById('editBookingDateEnd').value = b.dateEnd || '';
+    document.getElementById('editBookingCheckoutTime').value = b.checkoutTime || '11:00';
+  } else if (b.type === 'flight') {
+    document.getElementById('editFlightNumber').value = b.flightNumber || '';
+    document.getElementById('editFlightDirection').value = b.flightDirection || 'depart';
+    document.getElementById('editFlightDate').value = b.date || '';
+    document.getElementById('editFlightDepartTime').value = b.departTime || '';
+    document.getElementById('editFlightFrom').value = b.flightFrom || '';
+    document.getElementById('editFlightTo').value = b.flightTo || '';
+    document.getElementById('editFlightArrivalDate').value = b.arrivalDate || '';
+    document.getElementById('editFlightArrivalTime').value = b.arrivalTime || '';
+  }
+  document.getElementById('editBookingModal').classList.add('open');
+}
+
+function closeEditBooking() {
+  document.getElementById('editBookingModal').classList.remove('open');
+}
+
+function toggleEditBookingFields() {
+  const type = document.getElementById('editBookingType').value;
+  document.getElementById('editHotelFields').style.display = type === 'hotel' ? '' : 'none';
+  document.getElementById('editFlightFields').style.display = type === 'flight' ? '' : 'none';
+}
+
+function saveEditBooking() {
+  const id = document.getElementById('editBookingId').value;
+  const idx = state.bookings.findIndex(x => x.id === id);
+  if (idx === -1) return;
+  const type = document.getElementById('editBookingType').value;
+  const b = { ...state.bookings[idx], type, name: document.getElementById('editBookingName').value, ref: document.getElementById('editBookingRef').value, note: document.getElementById('editBookingNote').value };
+  if (type === 'hotel') {
+    b.date = document.getElementById('editBookingDate').value;
+    b.checkinTime = document.getElementById('editBookingCheckinTime').value;
+    b.dateEnd = document.getElementById('editBookingDateEnd').value;
+    b.checkoutTime = document.getElementById('editBookingCheckoutTime').value;
+  } else if (type === 'flight') {
+    b.flightNumber = document.getElementById('editFlightNumber').value;
+    b.flightDirection = document.getElementById('editFlightDirection').value;
+    b.date = document.getElementById('editFlightDate').value;
+    b.departTime = document.getElementById('editFlightDepartTime').value;
+    b.flightFrom = document.getElementById('editFlightFrom').value;
+    b.flightTo = document.getElementById('editFlightTo').value;
+    b.arrivalDate = document.getElementById('editFlightArrivalDate').value;
+    b.arrivalTime = document.getElementById('editFlightArrivalTime').value;
+  }
+  state.bookings[idx] = b;
+  saveState();
+  closeEditBooking();
+  renderBookings();
+  renderSchedule();
+}
+
+// ===== MANUAL SYNC =====
+async function manualSync() {
+  const btn = document.getElementById('syncBtn');
+  btn.textContent = '🔄 同期中…';
+  btn.disabled = true;
+  try {
+    const res = await fetch(SHEET_URL + '?action=read');
+    const data = await res.json();
+    if (data && data.spots) {
+      state = { ...state, ...data };
+      renderAll();
+      showSyncStatus('✅ 同期完了', '#4a7c59');
+    }
+  } catch(e) {
+    showSyncStatus('⚠ 同期失敗', '#b85c4a');
+  } finally {
+    btn.textContent = '🔄 今すぐ同期';
+    btn.disabled = false;
+  }
 }
 
 // ===== EXPORT =====

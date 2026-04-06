@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+	<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -764,6 +764,97 @@
     background: var(--border);
     margin: 12px 0;
   }
+
+  /* ===== PACKING ===== */
+  .packing-section {
+    margin-bottom: 16px;
+  }
+
+  .packing-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink-light);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .packing-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-bottom: 6px;
+    transition: all 0.2s;
+  }
+
+  .packing-item.checked {
+    background: var(--sand);
+    opacity: 0.7;
+  }
+
+  .packing-checkbox {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-light);
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+
+  .packing-checkbox.checked {
+    background: var(--green);
+    border-color: var(--green);
+    color: white;
+  }
+
+  .packing-info { flex: 1; min-width: 0; }
+
+  .packing-name {
+    font-size: 13px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .packing-item.checked .packing-name {
+    text-decoration: line-through;
+    color: var(--ink-light);
+  }
+
+  .packing-note {
+    font-size: 11px;
+    color: var(--ink-light);
+    margin-top: 1px;
+  }
+
+  .packing-checker {
+    font-size: 10px;
+    color: var(--green);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .packing-delete {
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 2px;
+    transition: color 0.15s;
+  }
+  .packing-delete:hover { color: var(--red); }
 </style>
 </head>
 <body>
@@ -797,6 +888,10 @@
       <button class="tab" onclick="switchTab('booking')" id="tab-booking">
         <span class="tab-icon">🏨</span>
         予約
+      </button>
+      <button class="tab" onclick="switchTab('packing')" id="tab-packing">
+        <span class="tab-icon">🎒</span>
+        持ち物
       </button>
     </div>
 
@@ -849,6 +944,19 @@
         </div>
       </div>
     </div>
+    <!-- PACKING PANEL -->
+    <div class="panel" id="panel-packing">
+      <div class="panel-header">
+        <span class="panel-title">持ち物リスト</span>
+        <button class="btn btn-primary" style="font-size:12px;padding:6px 12px" onclick="openAddPacking()">＋ 追加</button>
+      </div>
+      <div class="panel-body" id="packingList">
+        <div class="empty-state">
+          <div class="empty-icon">🎒</div>
+          <div class="empty-text">持ち物を追加しましょう</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- MAP -->
@@ -890,6 +998,39 @@
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeTripConfig()" style="color:var(--ink-light);border-color:var(--border)">キャンセル</button>
       <button class="btn btn-primary" onclick="saveTripConfig()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ADD PACKING -->
+<div class="modal-overlay" id="packingModal">
+  <div class="modal">
+    <div class="modal-title">🎒 持ち物を追加</div>
+    <div class="form-row">
+      <div class="form-field">
+        <div class="form-label">持ち物の名前</div>
+        <input class="form-input" id="packingName" placeholder="例：パスポート、日焼け止め">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <div class="form-label">リストの種類</div>
+        <select class="form-select" id="packingOwner">
+          <option value="common">👫 共通（2人で共有）</option>
+          <option value="mine">🙋 はーち</option>
+          <option value="partner">🙋 がんす</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <div class="form-label">メモ（任意）</div>
+        <input class="form-input" id="packingNote" placeholder="例：機内持ち込み用、100ml以下">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeAddPacking()" style="color:var(--ink-light);border-color:var(--border)">キャンセル</button>
+      <button class="btn btn-primary" onclick="savePackingItem()">追加</button>
     </div>
   </div>
 </div>
@@ -1140,7 +1281,8 @@ let state = {
   trip: { dest: '', start: '', end: '', members: '' },
   spots: [],
   schedule: [],
-  bookings: []
+  bookings: [],
+  packing: []
 };
 
 let map, geocoder, placesService, autocompleteService, infoWindow;
@@ -1288,7 +1430,8 @@ async function initMap() {
               <div style="margin-top:6px;font-size:11px;color:#4a7c59;font-weight:500">✅ リスト登録済み</div>
               <div style="display:flex;gap:6px;margin-top:8px">
                 <button class="iw-btn iw-add" onclick="openScheduleModal('${alreadyAdded.id}')">＋ 日程に追加</button>
-                <a href="${mapsUrl}" target="_blank" style="padding:5px 12px;background:#4a7c59;color:white;border-radius:5px;font-size:12px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none">🗺 ナビ</a>
+                <a href="${mapsUrl}" target="_blank" style="padding:5px 10px;color:white;border-radius:5px;font-size:11px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none;display:inline-block;background:#4a7c59">🗺 経路</a>
+                <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" style="padding:5px 10px;color:white;border-radius:5px;font-size:11px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none;display:inline-block;background:#3a6080">⭐ 口コミ</a>
               </div>
             </div>
           `);
@@ -1302,7 +1445,8 @@ async function initMap() {
             <div class="iw-addr">${place.formatted_address}</div>
             <div style="display:flex;gap:6px;margin-top:8px">
               <button class="iw-btn iw-add" onclick="addSpotFromMap('${place.place_id}')">＋ リストに追加</button>
-              <a href="${mapsUrl}" target="_blank" style="padding:5px 12px;background:#4a7c59;color:white;border-radius:5px;font-size:12px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none">🗺 ナビ</a>
+              <a href="${mapsUrl}" target="_blank" style="padding:5px 10px;color:white;border-radius:5px;font-size:11px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none;display:inline-block;background:#4a7c59">🗺 経路</a>
+              <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" style="padding:5px 10px;color:white;border-radius:5px;font-size:11px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none;display:inline-block;background:#3a6080">⭐ 口コミ</a>
             </div>
           </div>
         `);
@@ -1457,7 +1601,8 @@ function addMarker(spot) {
         <div class="iw-addr">${spot.address}</div>
         <div style="display:flex;gap:6px;margin-top:8px">
           <button class="iw-btn iw-add" onclick="openScheduleModal('${spot.id}')">＋ 日程に追加</button>
-          <a href="${mapsUrl}" target="_blank" style="padding:5px 12px;background:#4a7c59;color:white;border-radius:5px;font-size:12px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none">🗺 ナビ</a>
+          <a href="${mapsUrl}" target="_blank" style="padding:5px 10px;color:white;border-radius:5px;font-size:11px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none;display:inline-block;background:#4a7c59">🗺 経路</a>
+          <a href="https://www.google.com/maps/place/?q=place_id:${spot.placeId}" target="_blank" style="padding:5px 10px;color:white;border-radius:5px;font-size:11px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none;display:inline-block;background:#3a6080">⭐ 口コミ</a>
         </div>
       </div>
     `;
@@ -1881,6 +2026,86 @@ function updateTripLabel() {
   }
 }
 
+// ===== PACKING =====
+function openAddPacking() { document.getElementById('packingModal').classList.add('open'); }
+function closeAddPacking() { document.getElementById('packingModal').classList.remove('open'); }
+
+function savePackingItem() {
+  const name = document.getElementById('packingName').value.trim();
+  if (!name) { alert('名前を入力してください'); return; }
+  state.packing.push({
+    id: Date.now().toString(),
+    name,
+    owner: document.getElementById('packingOwner').value,
+    note: document.getElementById('packingNote').value,
+    checked: false,
+    checkedBy: ''
+  });
+  saveState();
+  closeAddPacking();
+  renderPacking();
+  ['packingName','packingNote'].forEach(id => document.getElementById(id).value = '');
+}
+
+function togglePackingCheck(id) {
+  const item = state.packing.find(p => p.id === id);
+  if (!item) return;
+  item.checked = !item.checked;
+  item.checkedBy = item.checked ? (state.trip.members ? state.trip.members.split('・')[0] : '自分') : '';
+  saveState();
+  renderPacking();
+}
+
+function deletePackingItem(id) {
+  state.packing = state.packing.filter(p => p.id !== id);
+  saveState();
+  renderPacking();
+}
+
+function renderPacking() {
+  const list = document.getElementById('packingList');
+  if (!state.packing.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🎒</div><div class="empty-text">持ち物を追加しましょう</div></div>`;
+    return;
+  }
+
+  const sections = [
+    { key: 'common', label: '👫 共通（2人で共有）' },
+    { key: 'mine',   label: '🙋 はーち' },
+    { key: 'partner', label: '🙋 がんす' },
+  ];
+
+  list.innerHTML = '';
+  sections.forEach(sec => {
+    const items = state.packing.filter(p => p.owner === sec.key);
+    if (!items.length) return;
+
+    const section = document.createElement('div');
+    section.className = 'packing-section';
+
+    const checkedCount = items.filter(p => p.checked).length;
+    section.innerHTML = `<div class="packing-section-title">${sec.label}　${checkedCount}/${items.length}</div>`;
+
+    items.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'packing-item' + (item.checked ? ' checked' : '');
+      row.innerHTML = `
+        <div class="packing-checkbox ${item.checked ? 'checked' : ''}" onclick="togglePackingCheck('${item.id}')">
+          ${item.checked ? '✓' : ''}
+        </div>
+        <div class="packing-info">
+          <div class="packing-name">${item.name}</div>
+          ${item.note ? `<div class="packing-note">${item.note}</div>` : ''}
+          ${item.checked && item.checkedBy ? `<div class="packing-checker">✅ ${item.checkedBy}がチェック済み</div>` : ''}
+        </div>
+        <button class="packing-delete" onclick="deletePackingItem('${item.id}')">✕</button>
+      `;
+      section.appendChild(row);
+    });
+    list.appendChild(section);
+  });
+}
+
 // ===== TABS =====
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -1895,6 +2120,7 @@ function renderAll() {
   renderSpots();
   renderSchedule();
   renderBookings();
+  renderPacking();
   updateTripLabel();
 }
 

@@ -34,43 +34,49 @@
   header {
     background: var(--ink);
     color: var(--accent-light);
-    padding: 16px 24px;
+    padding: 7px 14px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     position: sticky;
     top: 0;
     z-index: 1000;
-    box-shadow: 0 2px 12px var(--shadow);
+    box-shadow: 0 2px 8px var(--shadow);
   }
 
   .header-title {
     font-family: 'Playfair Display', serif;
     font-style: italic;
-    font-size: 22px;
+    font-size: 16px;
     letter-spacing: 0.02em;
+    line-height: 1.2;
   }
 
   .header-trip {
     font-family: 'Noto Serif JP', serif;
-    font-size: 13px;
+    font-size: 10px;
     font-weight: 300;
     color: rgba(232,201,154,0.7);
-    margin-top: 2px;
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
   }
 
   .header-actions {
     display: flex;
-    gap: 8px;
+    gap: 6px;
+    flex-shrink: 0;
   }
 
   .btn {
-    padding: 8px 16px;
+    padding: 5px 10px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     font-family: 'Noto Sans JP', sans-serif;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 500;
     transition: all 0.2s;
   }
@@ -92,7 +98,7 @@
   .app {
     display: grid;
     grid-template-columns: 380px 1fr;
-    height: calc(100vh - 61px);
+    height: calc(100vh - 44px);
   }
 
   /* ===== SIDEBAR ===== */
@@ -723,9 +729,10 @@
 
   /* ===== RESPONSIVE ===== */
   @media (max-width: 768px) {
-    .app { grid-template-columns: 1fr; grid-template-rows: 1fr 50vh; }
+    .app { grid-template-columns: 1fr; grid-template-rows: 55vw 1fr; height: calc(100vh - 44px); }
     .map-container { order: -1; }
-    .sidebar { height: 50vh; }
+    .sidebar { height: auto; overflow: hidden; }
+    .header-trip { max-width: 140px; }
   }
 
   .badge {
@@ -1261,8 +1268,80 @@ async function initMap() {
     if (!e.target.closest('.search-wrapper')) hideResults();
   });
 
+  // 地図クリックでスポット追加
+  map.addListener('click', (e) => {
+    if (e.placeId) {
+      e.stop();
+      placesService.getDetails({
+        placeId: e.placeId,
+        fields: ['name', 'formatted_address', 'geometry', 'place_id', 'types']
+      }, (place, status) => {
+        if (status !== google.maps.places.PlacesServiceStatus.OK) return;
+        const alreadyAdded = state.spots.find(s => s.placeId === place.place_id);
+        const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${place.geometry.location.lat()},${place.geometry.location.lng()}&destination_place_id=${place.place_id}&travelmode=walking`;
+        if (alreadyAdded) {
+          // すでに追加済みの場合
+          infoWindow.setContent(`
+            <div class="info-window">
+              <div class="iw-name">${place.name}</div>
+              <div class="iw-addr">${place.formatted_address}</div>
+              <div style="margin-top:6px;font-size:11px;color:#4a7c59;font-weight:500">✅ リスト登録済み</div>
+              <div style="display:flex;gap:6px;margin-top:8px">
+                <button class="iw-btn iw-add" onclick="openScheduleModal('${alreadyAdded.id}')">＋ 日程に追加</button>
+                <a href="${mapsUrl}" target="_blank" style="padding:5px 12px;background:#4a7c59;color:white;border-radius:5px;font-size:12px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none">🗺 ナビ</a>
+              </div>
+            </div>
+          `);
+          infoWindow.setPosition(place.geometry.location);
+          infoWindow.open(map);
+          return;
+        }
+        infoWindow.setContent(`
+          <div class="info-window">
+            <div class="iw-name">${place.name}</div>
+            <div class="iw-addr">${place.formatted_address}</div>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <button class="iw-btn iw-add" onclick="addSpotFromMap('${place.place_id}')">＋ リストに追加</button>
+              <a href="${mapsUrl}" target="_blank" style="padding:5px 12px;background:#4a7c59;color:white;border-radius:5px;font-size:12px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none">🗺 ナビ</a>
+            </div>
+          </div>
+        `);
+        infoWindow.setPosition(place.geometry.location);
+        infoWindow.open(map);
+      });
+    }
+  });
+
   renderAll();
   updateTripLabel();
+}
+
+// ===== ADD SPOT FROM MAP =====
+function addSpotFromMap(placeId) {
+  infoWindow.close();
+  placesService.getDetails({
+    placeId,
+    fields: ['name', 'formatted_address', 'geometry', 'place_id', 'types']
+  }, (place, status) => {
+    if (status !== google.maps.places.PlacesServiceStatus.OK) return;
+    const spot = {
+      id: Date.now().toString(),
+      placeId: place.place_id,
+      name: place.name,
+      address: place.formatted_address,
+      lat: place.geometry.location.lat(),
+      lng: place.geometry.location.lng(),
+      category: guessCategory(place.types),
+      memo: '',
+      inSchedule: false
+    };
+    state.spots.push(spot);
+    saveState();
+    renderSpots();
+    addMarker(spot);
+    showSyncStatus('📍 ' + spot.name + ' を追加しました', '#4a7c59');
+    switchTab('spots');
+  });
 }
 
 // ===== SEARCH =====

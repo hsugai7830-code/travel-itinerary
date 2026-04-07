@@ -731,9 +731,11 @@
 
   /* ===== RESPONSIVE ===== */
   @media (max-width: 768px) {
-    .app { grid-template-columns: 1fr; grid-template-rows: 55vw 1fr; height: calc(100vh - 44px); }
+    .app { grid-template-columns: 1fr; grid-template-rows: 45vw 1fr; height: calc(100vh - 44px); }
     .map-container { order: -1; }
-    .sidebar { height: auto; overflow: hidden; }
+    .sidebar { height: 100%; overflow: hidden; display: flex; flex-direction: column; }
+    .panel { flex: 1; min-height: 0; }
+    .panel-body { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
     .header-trip { max-width: 140px; }
   }
 
@@ -967,6 +969,7 @@
     <div class="map-legend">
       <div class="legend-item"><div class="legend-dot" style="background:#c17f3e"></div>行きたい場所</div>
       <div class="legend-item"><div class="legend-dot" style="background:#4a7c59"></div>日程に追加済み</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#3a6080"></div>🏨 ホテル</div>
     </div>
   </div>
 </div>
@@ -1055,6 +1058,20 @@
         <div class="form-label">名前</div>
         <input class="form-input" id="bookingName" placeholder="例：ホイアン リバーサイドホテル">
       </div>
+    </div>
+    <!-- 場所検索（フライト以外） -->
+    <div id="bookingPlaceSearch" style="position:relative">
+      <div class="form-row">
+        <div class="form-field">
+          <div class="form-label">場所を検索してピンを立てる（任意）</div>
+          <div style="position:relative">
+            <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink-light)">🔍</span>
+            <input class="form-input" id="bookingPlaceInput" placeholder="例：Cozy An Boutique Hotel" autocomplete="off" style="padding-left:34px" oninput="handleBookingPlaceSearch(this.value)">
+          </div>
+          <div id="bookingPlaceResults" style="display:none;position:absolute;left:0;right:0;background:white;border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px var(--shadow);z-index:200;max-height:200px;overflow-y:auto;margin-top:2px"></div>
+        </div>
+      </div>
+      <div id="bookingPlaceSelected" style="display:none;margin-bottom:8px;padding:6px 10px;background:var(--sand);border-radius:6px;font-size:12px;color:var(--green)"></div>
     </div>
     <!-- ホテル用フィールド -->
     <div id="hotelFields">
@@ -1578,20 +1595,38 @@ function addMarker(spot) {
   if (markers[spot.id]) markers[spot.id].setMap(null);
 
   const isScheduled = state.schedule.some(s => s.spotId === spot.id);
-  const color = isScheduled ? '#4a7c59' : '#c17f3e';
+  const isHotel = spot.category === 'hotel';
+  const color = isHotel ? '#3a6080' : (isScheduled ? '#4a7c59' : '#c17f3e');
 
-  const marker = new google.maps.Marker({
-    position: { lat: spot.lat, lng: spot.lng },
-    map,
-    title: spot.name,
-    icon: {
+  let icon;
+  if (isHotel) {
+    // ホテルは家アイコン（SVGパス）
+    icon = {
+      url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
+          <circle cx="18" cy="18" r="17" fill="#3a6080" stroke="white" stroke-width="2"/>
+          <text x="18" y="24" text-anchor="middle" font-size="18">🏨</text>
+        </svg>
+      `),
+      scaledSize: new google.maps.Size(36, 36),
+      anchor: new google.maps.Point(18, 18)
+    };
+  } else {
+    icon = {
       path: google.maps.SymbolPath.CIRCLE,
       scale: 10,
       fillColor: color,
       fillOpacity: 0.9,
       strokeColor: 'white',
       strokeWeight: 2
-    },
+    };
+  }
+
+  const marker = new google.maps.Marker({
+    position: { lat: spot.lat, lng: spot.lng },
+    map,
+    title: spot.name,
+    icon,
     animation: google.maps.Animation.DROP
   });
 
@@ -1614,6 +1649,58 @@ function addMarker(spot) {
   });
 
   markers[spot.id] = marker;
+}
+
+// ===== BOOKING MARKERS =====
+let bookingMarkers = {};
+
+function addBookingMarkers() {
+  // 既存の予約マーカーを全削除
+  Object.values(bookingMarkers).forEach(m => m.setMap(null));
+  bookingMarkers = {};
+
+  state.bookings.forEach(b => {
+    if (!b.lat || !b.lng || b.type === 'flight') return;
+
+    const emoji = b.type === 'hotel' ? '🏨' : b.type === 'restaurant' ? '🍽' : '📋';
+    const color = b.type === 'hotel' ? '#3a6080' : b.type === 'restaurant' ? '#c17f3e' : '#5a4f3c';
+
+    const marker = new google.maps.Marker({
+      position: { lat: b.lat, lng: b.lng },
+      map,
+      title: b.name,
+      icon: {
+        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+            <circle cx="20" cy="20" r="18" fill="${color}" stroke="white" stroke-width="2.5"/>
+            <text x="20" y="27" text-anchor="middle" font-size="20">${emoji}</text>
+          </svg>
+        `),
+        scaledSize: new google.maps.Size(40, 40),
+        anchor: new google.maps.Point(20, 20)
+      },
+      animation: google.maps.Animation.DROP,
+      zIndex: 10
+    });
+
+    marker.addListener('click', () => {
+      const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${b.lat},${b.lng}&travelmode=walking`;
+      const reviewUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(b.name)}&query_place_id=${b.placeId || ''}`;
+      infoWindow.setContent(`
+        <div class="info-window">
+          <div class="iw-name">${emoji} ${b.name}</div>
+          <div class="iw-addr">${b.placeAddress || ''}</div>
+          <div style="display:flex;gap:6px;margin-top:8px">
+            <a href="${mapsUrl}" target="_blank" style="padding:5px 10px;color:white;border-radius:5px;font-size:11px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none;display:inline-block;background:#4a7c59">🗺 経路</a>
+            ${b.placeId ? `<a href="${reviewUrl}" target="_blank" style="padding:5px 10px;color:white;border-radius:5px;font-size:11px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none;display:inline-block;background:#3a6080">⭐ 口コミ</a>` : ''}
+          </div>
+        </div>
+      `);
+      infoWindow.open(map, marker);
+    });
+
+    bookingMarkers[b.id] = marker;
+  });
 }
 
 function refreshMarker(spotId) {
@@ -1890,6 +1977,44 @@ function toggleBookingFields() {
   const type = document.getElementById('bookingType').value;
   document.getElementById('hotelFields').style.display = type === 'hotel' ? '' : 'none';
   document.getElementById('flightFields').style.display = type === 'flight' ? '' : 'none';
+  document.getElementById('bookingPlaceSearch').style.display = type === 'flight' ? 'none' : '';
+}
+
+let bookingPlaceData = null;
+let bookingPlaceSearchTimeout;
+
+function handleBookingPlaceSearch(val) {
+  clearTimeout(bookingPlaceSearchTimeout);
+  bookingPlaceData = null;
+  document.getElementById('bookingPlaceSelected').style.display = 'none';
+  const results = document.getElementById('bookingPlaceResults');
+  if (!val.trim()) { results.style.display = 'none'; return; }
+
+  bookingPlaceSearchTimeout = setTimeout(() => {
+    const dest = state.trip.dest || 'ホイアン ベトナム';
+    autocompleteService.getPlacePredictions({ input: val + ' ' + dest, language: 'ja' }, (predictions, status) => {
+      if (status !== google.maps.places.PlacesServiceStatus.OK || !predictions) { results.style.display = 'none'; return; }
+      results.innerHTML = '';
+      results.style.display = 'block';
+      predictions.slice(0, 5).forEach(p => {
+        const item = document.createElement('div');
+        item.className = 'search-result-item';
+        item.innerHTML = `<div class="result-name">${p.structured_formatting.main_text}</div><div class="result-addr">${p.structured_formatting.secondary_text || ''}</div>`;
+        item.addEventListener('click', () => {
+          placesService.getDetails({ placeId: p.place_id, fields: ['name','formatted_address','geometry','place_id'] }, (place, st) => {
+            if (st !== google.maps.places.PlacesServiceStatus.OK) return;
+            bookingPlaceData = { placeId: place.place_id, name: place.name, address: place.formatted_address, lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
+            document.getElementById('bookingPlaceInput').value = place.name;
+            results.style.display = 'none';
+            const sel = document.getElementById('bookingPlaceSelected');
+            sel.textContent = '📍 ' + place.name + ' — ' + place.formatted_address;
+            sel.style.display = 'block';
+          });
+        });
+        results.appendChild(item);
+      });
+    });
+  }, 300);
 }
 
 function saveBooking() {
@@ -1924,11 +2049,24 @@ function saveBooking() {
     booking.dateEnd = document.getElementById('bookingDateEnd').value;
   }
 
+  // 場所データがあればマーカー情報を追加
+  if (bookingPlaceData) {
+    booking.placeId = bookingPlaceData.placeId;
+    booking.placeName = bookingPlaceData.name;
+    booking.placeAddress = bookingPlaceData.address;
+    booking.lat = bookingPlaceData.lat;
+    booking.lng = bookingPlaceData.lng;
+  }
+
   state.bookings.push(booking);
   saveState();
   closeAddBooking();
   renderBookings();
   renderSchedule();
+  addBookingMarkers();
+  bookingPlaceData = null;
+  document.getElementById('bookingPlaceInput').value = '';
+  document.getElementById('bookingPlaceSelected').style.display = 'none';
   // reset
   ['bookingName','bookingRef','bookingNote','flightNumber','flightFrom','flightTo'].forEach(id => document.getElementById(id).value = '');
   ['bookingDate','bookingDateEnd','flightDate','flightArrivalDate'].forEach(id => document.getElementById(id).value = '');
@@ -1939,6 +2077,8 @@ function deleteBooking(id) {
   state.bookings = state.bookings.filter(b => b.id !== id);
   saveState();
   renderBookings();
+  renderSchedule();
+  addBookingMarkers();
 }
 
 const TYPE_LABELS = { hotel: '🏨 ホテル', flight: '✈ フライト', restaurant: '🍽 レストラン', other: '📋 その他' };
@@ -2119,6 +2259,7 @@ function switchTab(name) {
 // ===== RENDER ALL =====
 function renderAll() {
   state.spots.forEach(spot => addMarker(spot));
+  addBookingMarkers();
   renderSpots();
   renderSchedule();
   renderBookings();
@@ -2190,6 +2331,7 @@ function saveEditBooking() {
   closeEditBooking();
   renderBookings();
   renderSchedule();
+  addBookingMarkers();
 }
 
 // ===== MANUAL SYNC =====

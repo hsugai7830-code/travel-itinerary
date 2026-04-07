@@ -1,4 +1,4 @@
-	<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -634,6 +634,8 @@
     padding: 24px;
     width: 90%;
     max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
     box-shadow: 0 16px 48px rgba(0,0,0,0.2);
   }
 
@@ -1431,7 +1433,7 @@ async function initMap() {
               <div style="display:flex;gap:6px;margin-top:8px">
                 <button class="iw-btn iw-add" onclick="openScheduleModal('${alreadyAdded.id}')">＋ 日程に追加</button>
                 <a href="${mapsUrl}" target="_blank" style="padding:5px 10px;color:white;border-radius:5px;font-size:11px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none;display:inline-block;background:#4a7c59">🗺 経路</a>
-                <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" style="padding:5px 10px;color:white;border-radius:5px;font-size:11px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none;display:inline-block;background:#3a6080">⭐ 口コミ</a>
+                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}&query_place_id=${place.place_id}" target="_blank" style="padding:5px 10px;color:white;border-radius:5px;font-size:11px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none;display:inline-block;background:#3a6080">⭐ 口コミ</a>
               </div>
             </div>
           `);
@@ -1446,7 +1448,7 @@ async function initMap() {
             <div style="display:flex;gap:6px;margin-top:8px">
               <button class="iw-btn iw-add" onclick="addSpotFromMap('${place.place_id}')">＋ リストに追加</button>
               <a href="${mapsUrl}" target="_blank" style="padding:5px 10px;color:white;border-radius:5px;font-size:11px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none;display:inline-block;background:#4a7c59">🗺 経路</a>
-              <a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" style="padding:5px 10px;color:white;border-radius:5px;font-size:11px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none;display:inline-block;background:#3a6080">⭐ 口コミ</a>
+              <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}&query_place_id=${place.place_id}" target="_blank" style="padding:5px 10px;color:white;border-radius:5px;font-size:11px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none;display:inline-block;background:#3a6080">⭐ 口コミ</a>
             </div>
           </div>
         `);
@@ -1602,7 +1604,7 @@ function addMarker(spot) {
         <div style="display:flex;gap:6px;margin-top:8px">
           <button class="iw-btn iw-add" onclick="openScheduleModal('${spot.id}')">＋ 日程に追加</button>
           <a href="${mapsUrl}" target="_blank" style="padding:5px 10px;color:white;border-radius:5px;font-size:11px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none;display:inline-block;background:#4a7c59">🗺 経路</a>
-          <a href="https://www.google.com/maps/place/?q=place_id:${spot.placeId}" target="_blank" style="padding:5px 10px;color:white;border-radius:5px;font-size:11px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none;display:inline-block;background:#3a6080">⭐ 口コミ</a>
+          <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name)}&query_place_id=${spot.placeId}" target="_blank" style="padding:5px 10px;color:white;border-radius:5px;font-size:11px;font-family:Noto Sans JP,sans-serif;font-weight:500;text-decoration:none;display:inline-block;background:#3a6080">⭐ 口コミ</a>
         </div>
       </div>
     `;
@@ -2096,7 +2098,7 @@ function renderPacking() {
         <div class="packing-info">
           <div class="packing-name">${item.name}</div>
           ${item.note ? `<div class="packing-note">${item.note}</div>` : ''}
-          ${item.checked && item.checkedBy ? `<div class="packing-checker">✅ ${item.checkedBy}がチェック済み</div>` : ''}
+
         </div>
         <button class="packing-delete" onclick="deletePackingItem('${item.id}')">✕</button>
       `;

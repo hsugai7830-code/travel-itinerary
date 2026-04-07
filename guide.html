@@ -75,6 +75,10 @@
   .weather-label { font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
   .weather-value { font-size: 15px; font-weight: 700; color: var(--text); }
 
+  /* 地図ボックス */
+  .map-box { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.25rem 1.25rem; margin-bottom: 1.25rem; }
+  .map-box-title { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.75rem; }
+
   .divider { text-align: center; color: var(--text-muted); font-size: 14px; letter-spacing: 8px; margin: 0.5rem 0; opacity: 0.4; }
   footer { text-align: center; padding: 2rem 1.5rem 3rem; font-size: 12px; color: var(--text-muted); letter-spacing: 0.1em; }
 </style>
@@ -144,6 +148,86 @@
           <div class="weather-value">日本人が多い時期</div>
         </div>
       </div>
+    </div>
+
+    <!-- エリアマップ -->
+    <div class="map-box">
+      <div class="map-box-title">📍 エリアマップ</div>
+      <svg width="100%" viewBox="0 0 680 420" style="display:block;">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+        <!-- 背景 -->
+        <rect x="0" y="0" width="680" height="420" fill="#f5f0e8" rx="10"/>
+        <!-- 海（右側・東） -->
+        <rect x="430" y="0" width="250" height="420" fill="#c8e0f0" opacity="0.6"/>
+        <path d="M 430 0 Q 440 60 435 130 Q 428 200 432 270 Q 438 340 430 420" fill="#c8e0f0" opacity="0.6"/>
+        <!-- 陸地 -->
+        <rect x="0" y="0" width="435" height="420" fill="#e8e2d4" opacity="0.5"/>
+        <!-- 海岸線 -->
+        <path d="M 430 0 Q 440 60 435 130 Q 428 200 432 270 Q 438 340 430 420" fill="none" stroke="#b0a080" stroke-width="2.5" opacity="0.8"/>
+        <!-- ソンチャー半島 -->
+        <path d="M 418 80 Q 450 55 500 45 Q 540 40 555 65 Q 555 90 520 100 Q 480 108 440 105 Q 425 100 418 90 Z" fill="#d8d0bc" opacity="0.85"/>
+        <text x="490" y="75" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#8a7a60">ソンチャー半島</text>
+        <!-- ミーケービーチ -->
+        <path d="M 432 110 Q 436 160 434 210 Q 432 255 430 290" fill="none" stroke="#f0d870" stroke-width="8" opacity="0.6" stroke-linecap="round"/>
+        <text x="510" y="210" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7090b0" opacity="0.9">ミーケービーチ</text>
+        <!-- ハン川 -->
+        <path d="M 140 200 Q 260 193 370 196 Q 400 197 430 198" fill="none" stroke="#7ab8d8" stroke-width="2" opacity="0.6" stroke-linecap="round"/>
+        <!-- トゥボン川 -->
+        <path d="M 150 355 Q 240 348 320 352 Q 380 356 430 350" fill="none" stroke="#7ab8d8" stroke-width="2" opacity="0.6" stroke-linecap="round"/>
+        <text x="180" y="344" font-family="sans-serif" font-size="10" fill="#7ab8d8">トゥボン川</text>
+        <!-- ダナンエリア -->
+        <ellipse cx="300" cy="170" rx="125" ry="55" fill="#1a5f7a" opacity="0.10"/>
+        <ellipse cx="300" cy="170" rx="125" ry="55" fill="none" stroke="#1a5f7a" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.35"/>
+        <!-- ホイアンエリア -->
+        <ellipse cx="270" cy="355" rx="105" ry="45" fill="#c9922a" opacity="0.12"/>
+        <ellipse cx="270" cy="355" rx="105" ry="45" fill="none" stroke="#c9922a" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.4"/>
+        <!-- アンバンビーチエリア -->
+        <ellipse cx="405" cy="340" rx="32" ry="22" fill="#2d6a4f" opacity="0.15"/>
+        <ellipse cx="405" cy="340" rx="32" ry="22" fill="none" stroke="#2d6a4f" stroke-width="1.5" stroke-dasharray="5 3" opacity="0.5"/>
+        <!-- 空港滑走路 -->
+        <rect x="88" y="220" width="90" height="12" rx="3" fill="#c8c0b0" opacity="0.6"/>
+        <rect x="110" y="215" width="12" height="22" rx="3" fill="#c8c0b0" opacity="0.5"/>
+        <!-- 空港バッジ -->
+        <rect x="58" y="244" width="108" height="36" rx="18" fill="#5a4f7a" opacity="0.92"/>
+        <text x="112" y="258" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="700" fill="white">✈ ダナン国際</text>
+        <text x="112" y="272" text-anchor="middle" font-family="sans-serif" font-size="10" fill="rgba(255,255,255,0.85)">空港</text>
+        <!-- ダナンバッジ -->
+        <rect x="242" y="148" width="116" height="46" rx="23" fill="#1a5f7a" opacity="0.92"/>
+        <text x="300" y="166" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="700" fill="white">ダナン</text>
+        <text x="300" y="181" text-anchor="middle" font-family="sans-serif" font-size="10" fill="rgba(255,255,255,0.8)">DA NANG</text>
+        <!-- ホイアンバッジ -->
+        <rect x="196" y="333" width="148" height="46" rx="23" fill="#c9922a" opacity="0.92"/>
+        <text x="270" y="351" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="700" fill="white">ホイアン旧市街</text>
+        <text x="270" y="366" text-anchor="middle" font-family="sans-serif" font-size="10" fill="rgba(255,255,255,0.8)">HOI AN OLD TOWN</text>
+        <!-- アンバンビーチバッジ -->
+        <rect x="362" y="328" width="86" height="26" rx="13" fill="#2d6a4f" opacity="0.9"/>
+        <text x="405" y="345" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="700" fill="white">アンバンビーチ</text>
+        <!-- 空港→ダナン -->
+        <line x1="167" y1="258" x2="238" y2="195" stroke="#9080b0" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.5" marker-end="url(#arrow)"/>
+        <text x="192" y="220" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#7a6a9a">車15分</text>
+        <!-- ダナン→ホイアン -->
+        <line x1="200" y1="202" x2="200" y2="322" stroke="#888" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.6" marker-end="url(#arrow)"/>
+        <rect x="138" y="255" width="68" height="20" rx="10" fill="white" opacity="0.9"/>
+        <text x="172" y="268" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#666">車 約30分</text>
+        <!-- ホイアン→アンバン -->
+        <line x1="350" y1="348" x2="368" y2="342" stroke="#888" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.55" marker-end="url(#arrow)"/>
+        <text x="358" y="325" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#666">🚲 30分</text>
+        <!-- 五行山 -->
+        <circle cx="370" cy="268" r="12" fill="#b0a888" opacity="0.25"/>
+        <circle cx="370" cy="268" r="12" fill="none" stroke="#9a9070" stroke-width="1" opacity="0.4"/>
+        <text x="370" y="265" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#7a6a50">五行山</text>
+        <!-- 海ラベル -->
+        <text x="545" y="220" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#4a80a8" opacity="0.8" font-style="italic">南シナ海</text>
+        <!-- 方位 -->
+        <text x="638" y="36" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#888">N</text>
+        <line x1="638" y1="42" x2="638" y2="62" stroke="#999" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <!-- タイトル -->
+        <text x="90" y="28" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="700" fill="#5a4f3c" opacity="0.8">ダナン・ホイアン エリアマップ</text>
+      </svg>
     </div>
 
     <ul class="point-list">
@@ -221,7 +305,7 @@
       </li>
       <li>
         <span class="point-label" style="background: var(--green-light); color: var(--green);">パワースポット</span>
-        <div><strong>五行山・マーブルマウンテン（車で約20分）：</strong>大理石でできた5つの山（火・水・木・金・土）のパワースポット。水山（トゥイソン）のみ一般公開。洞窟・寺院・展望台を散策でき、山頂からミーケービーチを一望できる。『西遊記』にも登場。</div>
+        <div><strong>五行山・マーブルマウンテン（車で約20分）：</strong>大理石でできた5つの山（火・水・木・金・土）のパワースポット。水山（トゥイソン）のみ一般公開。洞窟・寺院・展望台を散策でき、山頂からミーケービーチを一望できる。</div>
       </li>
     </ul>
 
@@ -254,19 +338,19 @@
     <ul class="point-list">
       <li>
         <span class="point-label" style="background: var(--gold-light); color: var(--gold);">必見</span>
-        <div><strong>来遠橋（日本橋）：</strong>1593年頃に日本人商人が建造した屋根付きの橋。2万ドン紙幣にも描かれたホイアンのシンボル。橋の中央に航海の安全を祈る小さなお寺がある。毎夕18〜22時はライトアップされ幻想的な雰囲気に。入場無料。</div>
+        <div><strong>来遠橋（日本橋）：</strong>1593年頃に日本人商人が建造した屋根付きの橋。2万ドン紙幣にも描かれたホイアンのシンボル。橋の中央に航海の安全を祈る小さなお寺がある。毎夕18〜22時はライトアップされ幻想的な雰囲気に。</div>
       </li>
       <li>
         <span class="point-label" style="background: var(--gold-light); color: var(--gold);">必見</span>
-        <div><strong>福建会館：</strong>17世紀に中国・福建省出身の商人たちが建てた中国式寺院。航海の守り神「天后聖母」を祀る。天井から吊るされた巨大な螺旋状の線香が圧巻で、豪華絢爛な中華式庭園も見どころ。現在もホイアンに住む中国系の人々の心の拠り所。</div>
+        <div><strong>福建会館：</strong>17世紀に中国・福建省出身の商人たちが建てた中国式寺院。航海の守り神「天后聖母」を祀る。天井から吊るされた巨大な螺旋状の線香が圧巻で、豪華絢爛な中華式庭園も見どころ。</div>
       </li>
       <li>
         <span class="point-label" style="background: var(--gold-light); color: var(--gold);">必見</span>
-        <div><strong>ランタン祭り（満月の夕べ）：</strong>毎月旧暦14日の夜、街中の電灯が消えてランタンの明かりだけで照らされる幻想的なお祭り。通常の日でもランタンの灯りは楽しめる。トゥボン川での灯籠流しは毎日体験でき1個約300円。バクダン通りからの川沿いの夜景が特に美しい。</div>
+        <div><strong>ランタン祭り（満月の夕べ）：</strong>毎月旧暦14日の夜、街中の電灯が消えてランタンの明かりだけで照らされる幻想的なお祭り。トゥボン川での灯籠流しは毎日体験でき1個約300円。</div>
       </li>
       <li>
         <span class="point-label" style="background: var(--gold-light); color: var(--gold);">歴史</span>
-        <div><strong>旧市街の街並みと入場チケット：</strong>観光施設に入場する場合はチケットが必要（5枚つづり約600円、22施設から5か所選べる）。ただし旧市街を散策したり食事や記念撮影をするだけなら購入不要。</div>
+        <div><strong>旧市街の街並みと入場チケット：</strong>観光施設に入場する場合はチケットが必要（5枚つづり約600円、22施設から5か所選べる）。旧市街を散策したり食事や記念撮影をするだけなら購入不要。</div>
       </li>
       <li>
         <span class="point-label" style="background: var(--red-light); color: var(--red);">グルメ</span>
@@ -274,15 +358,15 @@
       </li>
       <li>
         <span class="point-label" style="background: var(--red-light); color: var(--red);">グルメ</span>
-        <div><strong>ホワイトローズ（バインバオバンロック）：</strong>白くて薔薇形の蒸し餃子。エビ入りでさっぱりした味わい。見た目も可愛くてテンション上がる。</div>
+        <div><strong>ホワイトローズ（バインバオバンロック）：</strong>白くて薔薇形の蒸し餃子。エビ入りでさっぱりした味わい。見た目も可愛い。</div>
       </li>
       <li>
         <span class="point-label" style="background: var(--green-light); color: var(--green);">体験</span>
-        <div><strong>アオザイのオーダーメイド：</strong>旧市街にオーダーメイドショップが多数。数時間で仕上げてくれるお店も多く、自分だけの一着をその日のうちに着られる。品質で日本人に人気の老舗も多い。</div>
+        <div><strong>アオザイのオーダーメイド：</strong>旧市街にオーダーメイドショップが多数。数時間で仕上げてくれるお店も多く、自分だけの一着をその日のうちに着られる。</div>
       </li>
       <li>
         <span class="point-label" style="background: var(--green-light); color: var(--green);">体験</span>
-        <div><strong>ランタン作り体験：</strong>職人から手ほどきを受けながらホイアン名物の布製ランタンを手作りできる。完成品はお持ち帰り可能でいい土産にもなる。</div>
+        <div><strong>ランタン作り体験：</strong>職人から手ほどきを受けながらホイアン名物の布製ランタンを手作りできる。完成品はお持ち帰り可能。</div>
       </li>
     </ul>
 
@@ -331,7 +415,7 @@
       </li>
       <li>
         <span class="point-icon">🏄</span>
-        <div><strong>マリンアクティビティ：</strong>カヤック・サップ・シュノーケリングなど楽しめる。5月は波が穏やかでアクティビティ向き。のんびり泳ぐだけでもOK。</div>
+        <div><strong>マリンアクティビティ：</strong>カヤック・サップ・シュノーケリングなど楽しめる。5月は波が穏やかでアクティビティ向き。</div>
       </li>
     </ul>
 
@@ -398,11 +482,11 @@
       </li>
       <li>
         <span class="point-icon">🌞</span>
-        <div><strong>GW5月の観光のコツ：</strong>屋外散策は午前中か夕方16時以降がおすすめ。日中12〜15時は日差しが強烈なのでカフェ・スパ・ショッピングに充てると快適。ホイアンの旧市街はエアコンのない店舗も多いので注意。</div>
+        <div><strong>GW5月の観光のコツ：</strong>屋外散策は午前中か夕方16時以降がおすすめ。日中12〜15時は日差しが強烈なのでカフェ・スパ・ショッピングに充てると快適。</div>
       </li>
       <li>
         <span class="point-icon">💊</span>
-        <div><strong>体調管理：</strong>整腸剤・下痢止め・日本から持参しておくと安心。水はミネラルウォーターを購入して。こまめな水分補給が熱中症予防のカギ。</div>
+        <div><strong>体調管理：</strong>整腸剤・下痢止めは日本から持参しておくと安心。水はミネラルウォーターを購入して。こまめな水分補給が熱中症予防のカギ。</div>
       </li>
       <li>
         <span class="point-icon">🛍️</span>

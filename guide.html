@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ダナン・ホイアン旅のガイド</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Zen+Maru+Gothic:wght@400;500;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #c0392b;
+    --red-light: #fdecea;
+    --gold: #c9922a;
+    --gold-light: #fff8e6;
+    --green: #2d6a4f;
+    --green-light: #eaf3de;
+    --blue: #1a5f7a;
+    --blue-light: #e6f4f8;
+    --text: #2c2c2a;
+    --text-muted: #6b6b67;
+    --border: rgba(0,0,0,0.1);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Zen Maru Gothic', sans-serif; background: #faf7f2; color: var(--text); line-height: 1.7; }
+
+  .hero { background: var(--red); padding: 3rem 1.5rem 2.5rem; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content: '✦ ✦ ✦'; position: absolute; top: 1rem; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.25); font-size: 12px; letter-spacing: 8px; }
+  .hero-flag { font-size: 36px; margin-bottom: 0.5rem; display: block; }
+  .hero-title { font-family: 'Playfair Display', 'Noto Serif JP', serif; font-size: clamp(28px, 6vw, 42px); color: #fff; font-weight: 700; letter-spacing: 0.05em; line-height: 1.2; margin-bottom: 0.5rem; }
+  .hero-subtitle { color: rgba(255,255,255,0.8); font-size: 13px; letter-spacing: 0.15em; margin-bottom: 1.5rem; }
+  .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .hero-tag { background: rgba(255,255,255,0.2); color: #fff; font-size: 11px; padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.35); letter-spacing: 0.05em; }
+
+  .nav { background: #fff; border-bottom: 1px solid var(--border); padding: 0 1rem; display: flex; overflow-x: auto; position: sticky; top: 0; z-index: 100; }
+  .nav a { text-decoration: none; color: var(--text-muted); font-size: 13px; padding: 14px 16px; white-space: nowrap; border-bottom: 2px solid transparent; transition: all 0.2s; font-weight: 500; }
+  .nav a:hover { color: var(--red); border-bottom-color: var(--red); }
+
+  .container { max-width: 720px; margin: 0 auto; padding: 0 1.25rem; }
+  .section { padding: 2.5rem 0; border-bottom: 1px solid var(--border); }
+  .section:last-child { border-bottom: none; }
+
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
+  .section-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .section-name { font-family: 'Noto Serif JP', serif; font-size: 22px; font-weight: 700; letter-spacing: 0.05em; }
+  .section-en { font-size: 11px; letter-spacing: 0.15em; margin-top: 1px; }
+
+  .section-sublabel { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; color: var(--text-muted); margin: 1.25rem 0 0.75rem; text-transform: uppercase; }
+
+  .overview-card { border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; border: 1px solid var(--border); background: #fff; }
+  .overview-lead { font-size: 15px; line-height: 1.9; color: var(--text); margin-bottom: 1rem; }
+  .keyword-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .keyword { font-size: 12px; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+
+  .subarea-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.25rem; }
+  @media (max-width: 480px) { .subarea-grid { grid-template-columns: 1fr; } }
+  .subarea-card { border-radius: 12px; padding: 1rem 1.1rem; border: 1px solid var(--border); background: #fff; }
+  .subarea-emoji { font-size: 22px; margin-bottom: 6px; display: block; }
+  .subarea-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .subarea-desc { font-size: 12px; color: var(--text-muted); line-height: 1.7; }
+
+  .point-list { list-style: none; background: #fff; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 1rem; }
+  .point-list li { padding: 12px 1.25rem; font-size: 14px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 10px; line-height: 1.7; }
+  .point-list li:last-child { border-bottom: none; }
+  .point-icon { flex-shrink: 0; font-size: 16px; margin-top: 2px; }
+  .point-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; padding: 2px 7px; border-radius: 4px; flex-shrink: 0; margin-top: 3px; white-space: nowrap; }
+
+  .memo-box { border-radius: 12px; padding: 1rem 1.25rem; margin-top: 1rem; border-left: 4px solid; background: #fff; }
+  .memo-title { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 6px; }
+  .memo-text { font-size: 13px; color: var(--text-muted); line-height: 1.8; font-style: italic; }
+
+  .weather-box { background: #fff9e6; border: 1px solid #f0d070; border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
+  .weather-title { font-size: 13px; font-weight: 700; color: var(--gold); margin-bottom: 0.75rem; }
+  .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  @media (max-width: 400px) { .weather-grid { grid-template-columns: 1fr; } }
+  .weather-item { background: #fff; border-radius: 10px; padding: 0.75rem 1rem; border: 1px solid rgba(0,0,0,0.08); }
+  .weather-label { font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
+  .weather-value { font-size: 15px; font-weight: 700; color: var(--text); }
+
+  .divider { text-align: center; color: var(--text-muted); font-size: 14px; letter-spacing: 8px; margin: 0.5rem 0; opacity: 0.4; }
+  footer { text-align: center; padding: 2rem 1.5rem 3rem; font-size: 12px; color: var(--text-muted); letter-spacing: 0.1em; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <span class="hero-flag">🇻🇳</span>
+  <h1 class="hero-title">ダナン・ホイアン<br>旅のガイド</h1>
+  <p class="hero-subtitle">DANANG &amp; HOI AN / VIETNAM ／ 2025年5月</p>
+  <div class="hero-tags">
+    <span class="hero-tag">世界遺産の古都</span>
+    <span class="hero-tag">青い海とビーチ</span>
+    <span class="hero-tag">絶品グルメ</span>
+    <span class="hero-tag">ランタンの光</span>
+    <span class="hero-tag">GWベストシーズン</span>
+  </div>
+</div>
+
+<nav class="nav">
+  <a href="#overview">概要・気候</a>
+  <a href="#danang">ダナン</a>
+  <a href="#hoian-oldtown">ホイアン旧市街</a>
+  <a href="#anban">アンバンビーチ</a>
+  <a href="#food">グルメ</a>
+  <a href="#tips">旅のヒント</a>
+</nav>
+
+<div class="container">
+
+  <!-- 概要・気候 -->
+  <section class="section" id="overview">
+    <div class="section-header">
+      <div class="section-icon" style="background: var(--red-light); font-size:24px;">🗺️</div>
+      <div>
+        <div class="section-name" style="color: var(--red);">概要・5月の気候</div>
+        <div class="section-en" style="color: var(--red);">OVERVIEW &amp; WEATHER IN MAY</div>
+      </div>
+    </div>
+
+    <div class="overview-card">
+      <p class="overview-lead">ダナンはベトナム中部最大の都市。きれいなビーチと近代的な街が共存するリゾート地で、ここを拠点に世界遺産の古都ホイアンへも30分程度でアクセスできる。ダナン周辺には世界遺産が3つも集まっており、ビーチも遺跡も楽しめる贅沢なエリア。</p>
+      <div class="keyword-row">
+        <span class="keyword" style="background: var(--red-light); color: var(--red);">ホイアンまで車30分</span>
+        <span class="keyword" style="background: var(--gold-light); color: var(--gold);">時差−2時間</span>
+        <span class="keyword" style="background: var(--green-light); color: var(--green);">世界遺産3つ</span>
+      </div>
+    </div>
+
+    <div class="weather-box">
+      <div class="weather-title">☀️ GW（5月上旬）の気候</div>
+      <div class="weather-grid">
+        <div class="weather-item">
+          <div class="weather-label">気温</div>
+          <div class="weather-value">30〜35℃</div>
+        </div>
+        <div class="weather-item">
+          <div class="weather-label">天気</div>
+          <div class="weather-value">乾季・ほぼ快晴</div>
+        </div>
+        <div class="weather-item">
+          <div class="weather-label">海</div>
+          <div class="weather-value">波穏やか・海水浴OK</div>
+        </div>
+        <div class="weather-item">
+          <div class="weather-label">混雑</div>
+          <div class="weather-value">日本人が多い時期</div>
+        </div>
+      </div>
+    </div>
+
+    <ul class="point-list">
+      <li>
+        <span class="point-icon">☀️</span>
+        <div><strong>GWはベストシーズン：</strong>乾季の真っ只中で雨が少なく、波も穏やか。ビーチも街歩きも両方楽しめる。日本人旅行者が特に集まる時期で賑やか。</div>
+      </li>
+      <li>
+        <span class="point-icon">🌡️</span>
+        <div><strong>日差しがとにかく強い：</strong>気温は30〜35℃で本格的な夏。日差しは日本の3倍ともいわれ、日焼け止め・帽子・サングラスは必須。12〜15時の屋外散策はきつい。カフェやスパで休憩を挟むのがコツ。</div>
+      </li>
+      <li>
+        <span class="point-icon">👗</span>
+        <div><strong>服装：</strong>半袖・短パンの真夏スタイルでOK。ただし室内は冷房が強め。薄手のカーディガンかスカーフは必携。寺院・旧市街は露出が多い服装はNG（スカーフで対応可）。</div>
+      </li>
+      <li>
+        <span class="point-icon">✈️</span>
+        <div><strong>アクセス：</strong>日本からダナン直行便あり（約5〜6時間）。ダナン国際空港から市内は車で約15〜20分。</div>
+      </li>
+      <li>
+        <span class="point-icon">💰</span>
+        <div><strong>通貨：</strong>ベトナムドン（VND）。1円≒約160VND。カード使える場所も多いが現金も持っておくと安心。ATMで現地引き出しが便利。</div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ダナン -->
+  <section class="section" id="danang">
+    <div class="section-header">
+      <div class="section-icon" style="background: var(--blue-light);">🌊</div>
+      <div>
+        <div class="section-name" style="color: var(--blue);">ダナン</div>
+        <div class="section-en" style="color: var(--blue);">DA NANG</div>
+      </div>
+    </div>
+
+    <div class="overview-card">
+      <p class="overview-lead">ベトナム随一の透明度を誇るミーケービーチが有名。リゾートホテルが立ち並ぶ海岸線と、グルメが充実した市街地が共存する都市型リゾート。世界遺産ミーソン聖域や五行山への拠点にもなる。</p>
+      <div class="keyword-row">
+        <span class="keyword" style="background: var(--blue-light); color: var(--blue);">ビーチリゾート</span>
+        <span class="keyword" style="background: var(--red-light); color: var(--red);">フォトジェニック</span>
+        <span class="keyword" style="background: var(--gold-light); color: var(--gold);">シーフード天国</span>
+      </div>
+    </div>
+
+    <p class="section-sublabel">市内スポット</p>
+    <div class="subarea-grid">
+      <div class="subarea-card" style="border-top: 3px solid var(--blue);">
+        <span class="subarea-emoji">🏖️</span>
+        <div class="subarea-name" style="color: var(--blue);">ミーケービーチ</div>
+        <p class="subarea-desc">世界の美しいビーチにも選ばれた白砂のビーチ。海岸線沿いにリゾートホテルが並ぶ。5月は波穏やかで海水浴のベストシーズン。</p>
+      </div>
+      <div class="subarea-card" style="border-top: 3px solid var(--gold);">
+        <span class="subarea-emoji">🌉</span>
+        <div class="subarea-name" style="color: var(--gold);">バーナーヒルズ</div>
+        <p class="subarea-desc">山頂のテーマパーク。巨人の手に支えられた「ゴールデンブリッジ」が世界的に有名。ギネス認定のロープウェイでアクセス。市内から約40分。</p>
+      </div>
+      <div class="subarea-card" style="border-top: 3px solid var(--red);">
+        <span class="subarea-emoji">🐉</span>
+        <div class="subarea-name" style="color: var(--red);">ドラゴンブリッジ</div>
+        <p class="subarea-desc">全長666mの龍型の橋でギネス認定。週末21時から龍が炎と水を吐くショーが開催。夜のライトアップも幻想的。</p>
+      </div>
+      <div class="subarea-card" style="border-top: 3px solid var(--green);">
+        <span class="subarea-emoji">🍽️</span>
+        <div class="subarea-name" style="color: var(--green);">ハン市場</div>
+        <p class="subarea-desc">地元民も観光客も集まるダナンの台所。アオザイ・カゴバック・ドライフルーツなど土産物も充実。ローカルフードも楽しめる。</p>
+      </div>
+    </div>
+
+    <p class="section-sublabel">ダナン発の世界遺産スポット</p>
+    <ul class="point-list">
+      <li>
+        <span class="point-label" style="background: var(--gold-light); color: var(--gold);">世界遺産</span>
+        <div><strong>ミーソン聖域（車で約1.5時間）：</strong>2世紀末から15世紀頃まで栄えたチャンパ王国が築いたヒンドゥー教の聖地。密林の奥にひっそりと立つ石造り寺院群が神秘的。ベトナム戦争で破壊された建物も多いが、独特のエキゾチックな雰囲気は圧巻。ホイアンとセットで日帰りツアーが効率的。</div>
+      </li>
+      <li>
+        <span class="point-label" style="background: var(--green-light); color: var(--green);">パワースポット</span>
+        <div><strong>五行山・マーブルマウンテン（車で約20分）：</strong>大理石でできた5つの山（火・水・木・金・土）のパワースポット。水山（トゥイソン）のみ一般公開。洞窟・寺院・展望台を散策でき、山頂からミーケービーチを一望できる。『西遊記』にも登場。</div>
+      </li>
+    </ul>
+
+    <div class="memo-box" style="border-color: var(--blue); background: var(--blue-light);">
+      <div class="memo-title" style="color: var(--blue);">✏️ メモ</div>
+      <p class="memo-text">ここに自分で調べたメモや感想を書き込めます。気になるホテル、行きたいスポットなど自由に。</p>
+    </div>
+  </section>
+
+  <!-- ホイアン旧市街 -->
+  <section class="section" id="hoian-oldtown">
+    <div class="section-header">
+      <div class="section-icon" style="background: var(--gold-light);">🏮</div>
+      <div>
+        <div class="section-name" style="color: var(--gold);">ホイアン旧市街</div>
+        <div class="section-en" style="color: var(--gold);">HOI AN OLD TOWN</div>
+      </div>
+    </div>
+
+    <div class="overview-card">
+      <p class="overview-lead">1999年にユネスコ世界文化遺産に登録された古都。2世紀からのチャンパ王国の貿易港として始まり、16〜17世紀には日本・中国・ヨーロッパの商人が集まる国際貿易都市として繁栄。街全体がレモンイエローの建物で統一された、おとぎ話のような景観が400年以上そのままの形で残っている。夜になるとランタンが灯り、トゥボン川では灯籠流しが毎日行われる。</p>
+      <div class="keyword-row">
+        <span class="keyword" style="background: var(--gold-light); color: var(--gold);">世界文化遺産（1999年登録）</span>
+        <span class="keyword" style="background: var(--red-light); color: var(--red);">ランタン祭り</span>
+        <span class="keyword" style="background: var(--green-light); color: var(--green);">日本人町の歴史</span>
+      </div>
+    </div>
+
+    <p class="section-sublabel">世界遺産の見どころ</p>
+    <ul class="point-list">
+      <li>
+        <span class="point-label" style="background: var(--gold-light); color: var(--gold);">必見</span>
+        <div><strong>来遠橋（日本橋）：</strong>1593年頃に日本人商人が建造した屋根付きの橋。2万ドン紙幣にも描かれたホイアンのシンボル。橋の中央に航海の安全を祈る小さなお寺がある。毎夕18〜22時はライトアップされ幻想的な雰囲気に。入場無料。</div>
+      </li>
+      <li>
+        <span class="point-label" style="background: var(--gold-light); color: var(--gold);">必見</span>
+        <div><strong>福建会館：</strong>17世紀に中国・福建省出身の商人たちが建てた中国式寺院。航海の守り神「天后聖母」を祀る。天井から吊るされた巨大な螺旋状の線香が圧巻で、豪華絢爛な中華式庭園も見どころ。現在もホイアンに住む中国系の人々の心の拠り所。</div>
+      </li>
+      <li>
+        <span class="point-label" style="background: var(--gold-light); color: var(--gold);">必見</span>
+        <div><strong>ランタン祭り（満月の夕べ）：</strong>毎月旧暦14日の夜、街中の電灯が消えてランタンの明かりだけで照らされる幻想的なお祭り。通常の日でもランタンの灯りは楽しめる。トゥボン川での灯籠流しは毎日体験でき1個約300円。バクダン通りからの川沿いの夜景が特に美しい。</div>
+      </li>
+      <li>
+        <span class="point-label" style="background: var(--gold-light); color: var(--gold);">歴史</span>
+        <div><strong>旧市街の街並みと入場チケット：</strong>観光施設に入場する場合はチケットが必要（5枚つづり約600円、22施設から5か所選べる）。ただし旧市街を散策したり食事や記念撮影をするだけなら購入不要。</div>
+      </li>
+      <li>
+        <span class="point-label" style="background: var(--red-light); color: var(--red);">グルメ</span>
+        <div><strong>カオラウ：</strong>ホイアンでしか食べられない太麺料理。豚肉・野菜・揚げ麺のトッピング。ホイアンの水でしか作れないとも言われる名物。</div>
+      </li>
+      <li>
+        <span class="point-label" style="background: var(--red-light); color: var(--red);">グルメ</span>
+        <div><strong>ホワイトローズ（バインバオバンロック）：</strong>白くて薔薇形の蒸し餃子。エビ入りでさっぱりした味わい。見た目も可愛くてテンション上がる。</div>
+      </li>
+      <li>
+        <span class="point-label" style="background: var(--green-light); color: var(--green);">体験</span>
+        <div><strong>アオザイのオーダーメイド：</strong>旧市街にオーダーメイドショップが多数。数時間で仕上げてくれるお店も多く、自分だけの一着をその日のうちに着られる。品質で日本人に人気の老舗も多い。</div>
+      </li>
+      <li>
+        <span class="point-label" style="background: var(--green-light); color: var(--green);">体験</span>
+        <div><strong>ランタン作り体験：</strong>職人から手ほどきを受けながらホイアン名物の布製ランタンを手作りできる。完成品はお持ち帰り可能でいい土産にもなる。</div>
+      </li>
+    </ul>
+
+    <div class="memo-box" style="border-color: var(--gold);">
+      <div class="memo-title" style="color: var(--gold);">✏️ メモ</div>
+      <p class="memo-text">ここに自分で調べたメモや感想を書き込めます。行きたいレストラン、買い物リストなど自由に。</p>
+    </div>
+  </section>
+
+  <!-- アンバンビーチ -->
+  <section class="section" id="anban">
+    <div class="section-header">
+      <div class="section-icon" style="background: var(--green-light);">🌴</div>
+      <div>
+        <div class="section-name" style="color: var(--green);">アンバンビーチ</div>
+        <div class="section-en" style="color: var(--green);">AN BANG BEACH</div>
+      </div>
+    </div>
+
+    <div class="overview-card">
+      <p class="overview-lead">ホイアン旧市街から自転車で30分ほどのローカルビーチ。観光客でごった返す旧市街から離れて、のんびりしたい時の避難先。おしゃれなビーチバーやカフェが増えていて、デッキチェアでトロピカルドリンクを飲みながらボーッとするのが最高。夕日が美しいことでも有名。</p>
+      <div class="keyword-row">
+        <span class="keyword" style="background: var(--green-light); color: var(--green);">のんびり系ビーチ</span>
+        <span class="keyword" style="background: var(--blue-light); color: var(--blue);">ビーチバー充実</span>
+        <span class="keyword" style="background: var(--gold-light); color: var(--gold);">サンセットが絶景</span>
+      </div>
+    </div>
+
+    <div class="subarea-grid">
+      <div class="subarea-card" style="border-top: 3px solid var(--green);">
+        <span class="subarea-emoji">🚲</span>
+        <div class="subarea-name" style="color: var(--green);">アクセス</div>
+        <p class="subarea-desc">旧市街から自転車で約30分。ホイアンは自転車の街なのでレンタサイクルで向かうのが定番。タクシーなら10分程度。</p>
+      </div>
+      <div class="subarea-card" style="border-top: 3px solid var(--blue);">
+        <span class="subarea-emoji">🍹</span>
+        <div class="subarea-name" style="color: var(--blue);">ビーチバー＆カフェ</div>
+        <p class="subarea-desc">ビーチ沿いにおしゃれなバーやカフェが点在。デッキチェアを借りてひたすらぼーっとする過ごし方が最高。新鮮なシーフードも食べられる。</p>
+      </div>
+    </div>
+
+    <ul class="point-list">
+      <li>
+        <span class="point-icon">🌅</span>
+        <div><strong>夕暮れが絶景：</strong>西向きのビーチなので夕日が海に沈む景色が美しい。夕方からビールを飲みながら眺めるのが至福の時間。</div>
+      </li>
+      <li>
+        <span class="point-icon">🏄</span>
+        <div><strong>マリンアクティビティ：</strong>カヤック・サップ・シュノーケリングなど楽しめる。5月は波が穏やかでアクティビティ向き。のんびり泳ぐだけでもOK。</div>
+      </li>
+    </ul>
+
+    <div class="memo-box" style="border-color: var(--green); background: var(--green-light);">
+      <div class="memo-title" style="color: var(--green);">✏️ メモ</div>
+      <p class="memo-text">ここに自分で調べたメモや感想を書き込めます。気になるカフェ候補など自由に。</p>
+    </div>
+  </section>
+
+  <!-- グルメ -->
+  <section class="section" id="food">
+    <div class="section-header">
+      <div class="section-icon" style="background: var(--red-light);">🍜</div>
+      <div>
+        <div class="section-name" style="color: var(--red);">食べたいもの</div>
+        <div class="section-en" style="color: var(--red);">MUST EAT</div>
+      </div>
+    </div>
+    <ul class="point-list">
+      <li>
+        <span class="point-label" style="background: var(--gold-light); color: var(--gold);">ホイアン名物</span>
+        <div><strong>カオラウ：</strong>ホイアン発祥の太麺料理。豚肉・野菜・揚げ麺のトッピング。ホイアンの水でしか本物が作れないとも言われる。</div>
+      </li>
+      <li>
+        <span class="point-label" style="background: var(--gold-light); color: var(--gold);">ホイアン名物</span>
+        <div><strong>ホワイトローズ：</strong>白くて薔薇型の蒸し餃子。エビ入りでさっぱり。見た目が可愛くて写真映えもする。</div>
+      </li>
+      <li>
+        <span class="point-label" style="background: var(--red-light); color: var(--red);">ダナン名物</span>
+        <div><strong>ミークアン：</strong>ターメリックで色付けた黄色い麺料理。具沢山で食べ応えあり。地元の朝ごはんの定番。</div>
+      </li>
+      <li>
+        <span class="point-label" style="background: var(--red-light); color: var(--red);">ダナン名物</span>
+        <div><strong>バインセオ：</strong>ベトナム風お好み焼き。カリカリの米粉生地にエビや豚、もやし入り。ハマる味。</div>
+      </li>
+      <li>
+        <span class="point-label" style="background: var(--green-light); color: var(--green);">絶対飲みたい</span>
+        <div><strong>カフェスア・ダー（ベトナムコーヒー）：</strong>練乳入りの甘くて濃いアイスコーヒー。暑い5月にめちゃくちゃ合う。</div>
+      </li>
+      <li>
+        <span class="point-label" style="background: var(--blue-light); color: var(--blue);">シーフード</span>
+        <div><strong>新鮮シーフード：</strong>ダナンは魚介が安くて新鮮。市場やシーフードレストランで豪快に食べたい。</div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 旅のヒント -->
+  <section class="section" id="tips">
+    <div class="section-header">
+      <div class="section-icon" style="background: var(--gold-light);">💡</div>
+      <div>
+        <div class="section-name" style="color: var(--gold);">旅のヒント</div>
+        <div class="section-en" style="color: var(--gold);">TRAVEL TIPS</div>
+      </div>
+    </div>
+    <ul class="point-list">
+      <li>
+        <span class="point-icon">🛺</span>
+        <div><strong>Grab（東南アジア版Uber）：</strong>移動はGrabが最強。ダナン⇔ホイアン間も400〜600円程度。ぼったくりリスクもなく快適。事前にアプリを入れておこう。</div>
+      </li>
+      <li>
+        <span class="point-icon">📱</span>
+        <div><strong>SIMカード：</strong>空港到着後すぐにSIMカードを購入するのがおすすめ。1週間で1,000円前後と安い。現地でGrabを使うためにも必須。</div>
+      </li>
+      <li>
+        <span class="point-icon">🌞</span>
+        <div><strong>GW5月の観光のコツ：</strong>屋外散策は午前中か夕方16時以降がおすすめ。日中12〜15時は日差しが強烈なのでカフェ・スパ・ショッピングに充てると快適。ホイアンの旧市街はエアコンのない店舗も多いので注意。</div>
+      </li>
+      <li>
+        <span class="point-icon">💊</span>
+        <div><strong>体調管理：</strong>整腸剤・下痢止め・日本から持参しておくと安心。水はミネラルウォーターを購入して。こまめな水分補給が熱中症予防のカギ。</div>
+      </li>
+      <li>
+        <span class="point-icon">🛍️</span>
+        <div><strong>お土産：</strong>ホイアンの雑貨はホーチミン・ハノイより安い。ランタン・アオザイ・コーヒー・カゴバッグが人気。アオザイはオーダーメイドが記念になる。</div>
+      </li>
+    </ul>
+    <div class="memo-box" style="border-color: var(--gold);">
+      <div class="memo-title" style="color: var(--gold);">✏️ 自分なりのヒント・持ち物リストなど</div>
+      <p class="memo-text">ここに自分で調べたことや、準備リストなど自由に書き込めます。</p>
+    </div>
+  </section>
+
+</div>
+
+<div class="divider">✦ ✦ ✦</div>
+<footer>
+  旅のしおり ／ ダナン・ホイアン編 ／ 2025年5月<br>
+  <span style="font-size:10px; opacity:0.6;">自分だけの旅のガイドブック</span>
+</footer>
+
+</body>
+</html>
